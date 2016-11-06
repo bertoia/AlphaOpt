@@ -4,9 +4,7 @@ from GPyOpt.models import GPModel
 
 class CustomCostModel(CostModel):
     def __init__(self, kernel, cost_withGradients):
-        super(CustomCostModel,self).__init__()
-
-        self.cost_type = cost_withGradients
+        super(CustomCostModel,self).__init__(cost_withGradients)
 
         # --- Set-up evaluation cost
         if self.cost_type == None:
