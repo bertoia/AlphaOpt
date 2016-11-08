@@ -159,5 +159,5 @@ class MultiAcquisitions(EvaluatorBase):
     def compute_batch(self):
         X_batch = self.acquisitions[0].optimize()
         for i in range(1, len(self.acquisitions)):
-            X_batch = np.vstack(X_batch, self.acquisitions[i].optimize())
+            X_batch = np.vstack((X_batch, self.acquisitions[i].optimize()))
         return X_batch
