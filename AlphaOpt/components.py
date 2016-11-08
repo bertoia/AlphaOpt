@@ -5,6 +5,7 @@ goes here
 import GPyOpt
 from GPyOpt.acquisitions.base import AcquisitionBase
 from GPyOpt.acquisitions.EI import AcquisitionEI
+from GPyOpt.core.evaluators.base import EvaluatorBase
 from numpy.random import beta
 from GPyOpt.core.task.cost import CostModel
 from GPyOpt.core.task.cost import constant_cost_withGradients
@@ -28,17 +29,8 @@ Re-implement GPyOpt.core.task.cost.CostModel
 """
 Acquisition Function
 """  
+#TODO: Still need to figure out correct sign for acquisition functions
 class EIXplore(AcquisitionBase):   
-    """
-    General template to create a new GPyOPt acquisition function
-
-    :param model: GPyOpt class of model
-    :param space: GPyOpt class of domain
-    :param optimizer: optimizer of the acquisition. Should be a GPyOpt optimizer
-    :param cost_withGradients: function that provides the evaluation cost and its gradients
-
-    """
-    # --- Set this line to true if analytical gradients are available
     analytical_gradient_prediction = False
     
     jitter = 0
@@ -74,32 +66,81 @@ class EIXplore(AcquisitionBase):
         self.explore %= self.cycle
         return f_acqu_x
 
-class jitter_integrated_EI(AcquisitionBase):
-    def __init__(self, model, space, optimizer=None, cost_withGradients=None,
-                 par_a=1, par_b=1, num_samples=100):
-        super(jitter_integrated_EI, self).__init__(model, space, optimizer)
+class EntropyWeightedEI(AcquisitionBase):
+    analytical_gradient_prediction = False
 
-        self.par_a = par_a
-        self.par_b = par_b
-        self.num_samples = num_samples
-        self.samples = beta(self.par_a, self.par_b, self.num_samples)
+    def __init__(self, model, space, optimizer, cost_withGradients=None):
+        super(EntropyWeightedEI, self).__init__(model, space, optimizer)
+        
         self.EI = AcquisitionEI(model, space, optimizer, cost_withGradients)
 
-    def acquisition_function(self, x):
-        acqu_x = np.zeros((x.shape[0], 1))
-        for k in range(self.num_samples):
-            self.EI.jitter = self.samples[k]
-            acqu_x += self.EI.acquisition_function(x)
-        return acqu_x / self.num_samples
+        if cost_withGradients == None:
+             self.cost_withGradients = constant_cost_withGradients
+        else:
+             self.cost_withGradients = cost_withGradients 
 
-    def acquisition_function_withGradients(self, x):
-        acqu_x = np.zeros((x.shape[0], 1))
-        acqu_x_grad = np.zeros(x.shape)
 
-        for k in range(self.num_samples):
-            self.EI.jitter = self.samples[k]
-            acqu_x_sample, acqu_x_grad_sample = self.EI.acquisition_function_withGradients(
-                x)
-            acqu_x += acqu_x_sample
-            acqu_x_grad += acqu_x_grad_sample
-        return acqu_x / self.num_samples, acqu_x_grad / self.num_samples
+    def _compute_acq(self,x):
+        m, s = self.model.predict(x)
+        acqu_x = self.EI.acquisition_function(x)
+        
+        h = 0.5 * np.log(2*math.pi*math.e*np.square(s))
+        for i in range (acqu_x.shape[0]):
+            acqu_x[i] += h[i]
+        return acqu_x
+
+# Meant to be used with posterior sampling
+class EntropyExplore(AcquisitionBase):
+    analytical_gradient_prediction = False
+
+    def __init__(self, model, space, optimizer, cost_withGradients=None):
+        super(EntropyExplore, self).__init__(model, space, optimizer)
+        
+        self.EI = AcquisitionEI(model, space, optimizer, cost_withGradients)
+
+        if cost_withGradients == None:
+             self.cost_withGradients = constant_cost_withGradients
+        else:
+             self.cost_withGradients = cost_withGradients 
+
+
+    def _compute_acq(self,x):
+        m, s = self.model.predict(x)
+        h = 0.5 * np.log(2*math.pi*math.e*np.square(s))
+        return h
+
+class PITarget(AcquisitionBase):
+    analytical_gradient_prediction = True
+
+    def __init__(self, model, space, optimizer=None, cost_withGradients=None, jitter=0.2, target=None):
+        super(PIThreshold, self).__init__(model, space, optimizer, cost_withGradients=cost_withGradients)
+        self.jitter = jitter
+        self.target = 1 if target is None else target
+
+    def _compute_acq(self, x):
+        m, s = self.model.predict(x)
+        fmin = self.target if self.target is not None else self.model.get_fmin()
+        _, Phi, _ = get_quantiles(self.jitter, fmin, m, s)    
+        f_acqu = Phi
+        self.jitter *= .5
+        return f_acqu
+
+    def _compute_acq_withGradients(self, x):
+        fmin = self.target if self.target is not None else self.model.get_fmin()
+        m, s, dmdx, dsdx = self.model.predict_withGradients(x)
+        phi, Phi, u = get_quantiles(self.jitter, fmin, m, s)    
+        f_acqu =  Phi        
+        df_acqu = -(phi/s)* (dmdx + dsdx * u)
+
+        self.jitter *= .5
+        return f_acqu, df_acqu
+
+class MultiAcquisitions(EvaluatorBase):
+    def __init__(self, *args):
+        self.acquisitions = args
+
+    def compute_batch(self):
+        X_batch = self.acquisitions[0].optimize()
+        for i in range(1, len(self.acquisitions)):
+            X_batch = np.vstack(X_batch, self.acquisitions[i].optimize())
+        return X_batch
