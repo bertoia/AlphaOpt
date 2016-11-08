@@ -30,7 +30,12 @@ Re-implement GPyOpt.core.task.cost.CostModel
 Acquisition Function
 """  
 #TODO: Still need to figure out correct sign for acquisition functions
-class EIXplore(AcquisitionBase):   
+class EIXplore(AcquisitionBase):
+    """
+    Usage: Cycle is a parameter deciding how often to explore. Cycle = 2 implies
+    alternate between exploration and exploitation. Cycle = 3 implies explore
+    once every 3 evaluations.
+    """
     analytical_gradient_prediction = False
     
     jitter = 0
@@ -110,6 +115,12 @@ class EntropyExplore(AcquisitionBase):
         return h
 
 class PITarget(AcquisitionBase):
+    """
+    Usage: Target is the target output value (optimum of the black-box function)
+    that we want to hit. This is usually unknown except for test functions.
+    However, in our experiments, the target would be the accuracy, so depending
+    on the units, target = 100 or target = 1 (default)
+    """
     analytical_gradient_prediction = True
 
     def __init__(self, model, space, optimizer=None, cost_withGradients=None, jitter=0.2, target=None):
@@ -136,6 +147,12 @@ class PITarget(AcquisitionBase):
         return f_acqu, df_acqu
 
 class MultiAcquisitions(EvaluatorBase):
+    """
+    Usage: Pass in a list of acquisition functions that you want to be evaluated
+    across all cores.
+
+    See Parallel Modular BO.ipynb for an example.
+    """
     def __init__(self, *args):
         self.acquisitions = args
 
