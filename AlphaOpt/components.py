@@ -6,12 +6,13 @@ import GPyOpt
 from GPyOpt.acquisitions.base import AcquisitionBase
 from GPyOpt.acquisitions.EI import AcquisitionEI
 from GPyOpt.core.evaluators.base import EvaluatorBase
-from numpy.random import beta
 from GPyOpt.core.task.cost import CostModel
 from GPyOpt.core.task.cost import constant_cost_withGradients
 from GPyOpt.util.general import get_quantiles
 import math
 import numpy as np
+from GPyOpt.models import GPModel
+
 
 """
 Objective GP Model
@@ -23,6 +24,23 @@ Objective GP Model
 Time GP Model
 Re-implement GPyOpt.core.task.cost.CostModel
 """
+class CustomCostModel(CostModel):
+    def __init__(self, kernel, cost_withGradients):
+        super(CustomCostModel,self).__init__(cost_withGradients)
+
+        # --- Set-up evaluation cost
+        if self.cost_type == None:
+            self.cost_withGradients = CostModel.constant_cost_withGradients
+            self.cost_type = 'Constant cost'
+
+        elif self.cost_type == 'evaluation_time':
+            self.cost_model = GPModel(kernel=kernel, exact_feval=False,
+                                      normalize_Y=False, optimize_restarts=5)
+            self.cost_withGradients = self._cost_gp_withGradients
+            self.num_updates = 0
+        else:
+            self.cost_withGradients = cost_withGradients
+            self.cost_type = 'Used defined cost'
 
 
 
@@ -55,7 +73,6 @@ class EIXplore(AcquisitionBase):
         else:
              self.cost_withGradients = cost_withGradients 
 
-
     def _compute_acq(self,x):
         m, s = self.model.predict(x)
         fmin = self.model.get_fmin()
@@ -71,6 +88,7 @@ class EIXplore(AcquisitionBase):
         self.explore %= self.cycle
         return f_acqu_x
 
+
 class EntropyWeightedEI(AcquisitionBase):
     analytical_gradient_prediction = False
 
@@ -82,8 +100,7 @@ class EntropyWeightedEI(AcquisitionBase):
         if cost_withGradients == None:
              self.cost_withGradients = constant_cost_withGradients
         else:
-             self.cost_withGradients = cost_withGradients 
-
+             self.cost_withGradients = cost_withGradients
 
     def _compute_acq(self,x):
         m, s = self.model.predict(x)
@@ -93,6 +110,7 @@ class EntropyWeightedEI(AcquisitionBase):
         for i in range (acqu_x.shape[0]):
             acqu_x[i] += h[i]
         return acqu_x
+
 
 # Meant to be used with posterior sampling
 class EntropyExplore(AcquisitionBase):
@@ -113,6 +131,7 @@ class EntropyExplore(AcquisitionBase):
         m, s = self.model.predict(x)
         h = 0.5 * np.log(2*math.pi*math.e*np.square(s))
         return h
+
 
 class PITarget(AcquisitionBase):
     """
@@ -145,6 +164,7 @@ class PITarget(AcquisitionBase):
 
         self.jitter *= .5
         return f_acqu, df_acqu
+
 
 class MultiAcquisitions(EvaluatorBase):
     """
