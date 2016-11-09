@@ -12,14 +12,14 @@
 \setlength{\pdfpagewidth}{8.5in}
 \setlength{\pdfpageheight}{11in}
 \pdfinfo{
-/Title (Gaussian Process for Hyper-Parameter Optimization of Machine Learning Algorithms)
-/Author (Put All Your Authors Here, Separated by Commas)}
+/Title (Bayesian Optimisation of Machine Learning Algorithms)
+/Author ()}
 \setcounter{secnumdepth}{1}
  \begin{document}
 % The file aaai.sty is the style file for AAAI Press
 % proceedings, working notes, and technical reports.
 %
-\title{Gaussian Process for Hyper-Parameter Optimization of Machine Learning Algorithms}
+\title{Bayesian Optimisation of Machine Learning Algorithms}
 \author{
 National University of Singapore \\
 CS4246 Group 7 \AND
@@ -33,63 +33,107 @@ CS4246 Group 7 \AND
 
 \maketitle
 \begin{abstract}
-Hyper-parameter tuning has traditionally been done by humans who are efficient in getting reasonable performance within a few trials. Popular algorithms such as grid search or randomized search can be expensive. In this paper, we explore the use of Gaussian Processes to maximize the performance with minimum cost through Bayesian optimization
+Machine learning algorithms have grown in popularity over the past few years.
+This increased interest and usage also implies an increasing need for
+hyperparameter tuning. Traditionally done by human experts, the process is
+nonetheless a black art in itself. Experts often use heuristics to guide their
+tuning efforts. This is not invulnerable to cognitive biases. Moreover, humans
+are unlikely to find a result close to the optimum, especially if there are
+numerous hyperparameters and when hyperparameters are correlated in some way
+not easily inferred. In this paper, we explore the use of Gaussian Processes to
+automate this problem through the use of Bayesian Optimisation.
 \end{abstract}
 
 \section{Introduction}
-\noindent Machine learning algorithms usually involves careful tuning of hyper-parameters, regularization terms and optimization parameters. Performance of the algorithms are usually sensitive to the parameters involved. The parameters are often continuous in nature, making parameter tuning a difficult optimization problem for machine learning practitioners.
+\noindent Machine learning algorithms often involves careful tuning of hyperparameters.
+As an example, the hyperparameters of a neural network include the learning rate,
+batch size and number of hidden units. Given the black-box nature of this algorithm,
+there is no definite and explicit method to select the optimal hyperparameters.
+Not only is the performance of such algorithms particularly sensitive to the
+parameters involved, this process of hyperparameter optimisation is traditionally
+done by a human, who is unlikely to find the optimum easily. The parameters are
+also often continuous in nature, making this a difficult optimization problem for
+machine learning practitioners.
 
-One common strategy is grid search. It is a sequential search of cartesian product of individual parameter domain space with specified step intervals. A more efficient method is a manual subset of grid search, where one manually change the parameters with changing arbitrary step sizes depending on the accuracy of the trained machine learning model to achieve a satisfactory maximum accuracy of the train models.
-
-A stochastic method, called random search, can also be employed where parameters are randomly picked within a predefined space.
-
+Currently, the two common strategies employed for tuning are grid search and
+random search. The former involves the uniform division of the entire search
+space. This is easily seen with a simple example of two parameters, $\theta_1$ and
+$\theta_2$, which are allowed to vary along the continuous domain of $(0, 1)$.
+Suppose we divided the search space for each parameter at a step interval of 0.5,
+that is, the set of values: $\Theta=\{0.0, 0.5, 1.0\}$. Then, the points that one
+would evaluate the algorithm at would be given by the cartesian product: $\Theta \times \Theta$.
+The second strategy simply involves the random selection of a number of points
+within the search space. Notably, not only is this strategy easy to implement, it
+often performs comparably better than grid search.
 
 \section{Motivating Application}
-Machine learning algorithms is widely used in academia and industry in learning problems such as classification and regression. The challenge of hyper-parameter optimization in large and multilayer models is a direct impediment to scientific progress.
+Machine learning algorithms are widely used in academia and industry in learning
+problems such as classification and regression. Automating hyperparameter optimisation
+can better improve the performance of these algorithms, which can indirectly lead
+to greater scientific or industrial advances and innovations.
 
+Current tuning strategies outlined above essentially conduct an exhaustive search
+through the parameter space. This problem is usually mitigated by increasing search step or narrowing parameter space. For example, in tuning of Support Vector Machines (SVM) with RBF kernel, it is recommended that C and $\gamma$ are searched exponentially in base 2. A more economical approach could be to search in base 10. It would be ideal to have an algorithm that cleverly moves through the parameter space in every trial. This can enable us to reach the near optimum with as little trials as possible. It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation.
 
-In some machine learning algorithms such as neural network, there are no definite and explicit method to select optimal parameters (number of hidden layers, number of units for each layer, etc).
+Bayesian optimisation involves the use of a surrogate function (or response surface)
+which approximates the objective. For a certain number of iterations, or until
+convergence, we pick, according to a heuristic or function, henceforth known as the
+acquisition function, the next best point to be evaluated by the objective. The
+surrogate function is updated in this process to reflect our new belief.
 
+In particular, the Gaussian Process model is used as the surrogate function
+for the objective function, which in this case, is the machine learning algorithm.
+The Gaussian Process model, being a distribution over functions, is especially apt
+to model this unknown, non-convex, and complex objective function. The
+initial Gaussian Process model prescribes a prior over the objective, which is
+subsequently updated with new data that is observed.
 
-The tuning algorithms outlined above are expensive as they search through parameter space exhaustively. This problem is usually mitigated by increasing search step or narrowing parameter space. For example in tuning of Support Vector Machine (SVM) with RBF kernel, it is recommended that C and γ are searched exponentially in base 2 . A more economical approach could be to search in base 10.
+This differentiates the strategy of Bayesian optimisation from other tuning
+strategies mentioned previously. Instead of discarding information about new points
+that we have queried the objective for, Bayesian optimisation cleverly exploits this
+knowledge by updating the prior. As a result, this can provide improvements in time
+efficiency over naive algorithms such as grid search, whereby the computational
+cost scales exponentially with the number of parameters.  This is particulary
+important in our application where the search space is usually high-dimensional
+and extremely large. Since the Gaussian Process model provides predictive uncertainty
+in the posterior, we can exploit this in the acquisition function, which essentially
+computes the utility of candidate points and is optimised to obtain the next point
+to be evaluated.
 
+Inherent in this process is this tradeoff between exploration and exploitation.
+Clearly, one could simply greedily select the next point with the highest predictive
+mean, or a point which gives the highest probability of improvement. However, one
+is also likely to fall into local minima or maxima in this case. Without exploration
+in areas of high uncertainty, it is not guaranteed that the global optimum can be
+found. This tradeoff is usually manifest in the acquisition function. In fact,
+we will explore various Bayesian optimisation criteria and conduct experiments to
+evaluate their performance in our application.
 
-It would be ideal to have an algorithm that cleverly move through the parameter space in every trial to get a set of parameters that gives us maximum accuracy with as little trials as possible. It is with this motivation that we proposed Bayesian optimization based on Gaussian Process predictive model.
+Finally, there are certain Bayesian optimisation algorithms that can satisfy the
+requirements of hyperparameter tuning. Firstly, the tuning process is often
+expensive. Evaluations of large models dealing with big data can be extremely
+costly. Moreover, it is innately useful and beneficial if we can utilise
+Bayesian optimisation to improve this search for the optimum. In other contexts,
+one may be limited by time or computing resources. Consequently, minimising the
+number of function evaluations to obtain a near-optimal result is clearly a concern.
+Conversely, one may have access to parallel computing resources. In this aspect,
+Bayesian optimisation is flexible in that both sequential and parallel algorithms
+are available. In particular, non-myopic and parallel Bayesian optimisation
+algorithms can effectively reduce the number of objective function evaluations
+as well as the time needed to optimise the objective.
 
 \section{Technical Approach}
-A Gaussian process is a collection of random variables, any finite subset of which have a multivariate Gaussian distribution. It is completely specified by a mean function $\mu(\textbf{x})$ and the covariance function $k(\textbf{x}, \textbf{x}')$. For a real process $f(\textbf{x})$:
-
-\begin{align*}
-	\mu(\textbf{x}) &= E[f(\textbf{x})] \\
-	k(\textbf{x}, \textbf{x}') &= E[(f(\textbf{x}) - \mu(\textbf{x}))(f(\textbf{x}') - \mu(\textbf{x}')] \\
-\end{align*}
-
-The GP can then be denoted as:
-\[f(\textbf{x}) \sim \mathcal{GP}(\mu(\textbf{x}), k(\textbf{x}, \textbf{x}'))\]
-
-We assume that our data $\mathcal{D} = \{(x_1, y_1), \ldots, (x_i, y_i)\}$ are such that $y_i$ are noisy observations originating from a GP-distributed random function $f(\textbf{x}_i)$ such that:
-
-\begin{align*}
-	y_i &= f(\textbf{x}_i) + \epsilon_i \\
-	\epsilon_i &\sim \mathcal{N}(0, \sigma_n^2)
-\end{align*}
-
-Given $\textbf{y} = [y_1y_2\ldots y_i]^\top$, suppose we have a new input $\textbf{x}_*$ for which we would like to obtain a prediction for. In other words, we would like to infer $p(f_* \mid \textbf{y})$. Then, the predictive mean and variance from the GP can be given by:
-
-\begin{align*}
-	&E[f_* \mid \textbf{y}] = \mu(\textbf{x}_*) + \textbf{k}_*^\top (\textbf{K} + \sigma_n^2 \textbf{I})^{-1} (\textbf{y} - \boldsymbol{\mu}) \\
-	&V[f_* \mid y] = k(\textbf{x}_*, \textbf{x}_*) - \textbf{k}_*^\top (\textbf{K} + \sigma_n^2 \textbf{I})^{-1} \textbf{k}_* \\
-\end{align*}
+% Describe clearly and CONCISELY the technical details of the active learning or Bayesian optimization algorithm that you are using.
 
 \subsection{Problem Definition}
 An optimization problem typically involves the finding of a minimum f(x) by exploiting a model to pick the next point to evaluate the function. As training a machine learning algorithm can be expensive, it is worthwhile to invest more computational cost in picking a promising set of hyperparameters to evaluate next. In this paper, we choose a Gaussian Process model as our prior and an acquisition function to pick the next point to evaluate by constructing a utility function from the model posterior. 
 
-Besides the number of trials, we also take consideration of the time for each trial and pick the point that not only yield good result but fast to evaluate. 
+Besides the number of trials, we also take consideration of the time for each trial and pick the point that not only yield good result but fast to evaluate.
+
 \subsection{Model Definition}
 In this paper, we assume that the performance measures for hyperparameters follow a Gaussian distribution. Given n set of hyperparameters which have been evaluated, we predict the performance measure of the next set.
 
 In the cost-sensitive model, we maintains another GP model to predict the execution time given the same input.
-
 
 \subsection{Acquisition Functions}
 
@@ -103,9 +147,8 @@ We propose the use of the ARD Mat´ern 5/2 kernel
 The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and multivariate statistical analysis on metric spaces. Due to its stationary and isotropic nature, it is able to produce similar predictive output for two inputs that are d units distant from each other. 5/2 is chosen for its ability to produce smooth and yet sensitive curves.
 
 \subsection{Cost-sensitive Modeling}
-While it is important to find a good set of hyperparameters in the fewest number of trials, we should keep in mind that the execution time for different regions of the parameter spaces can vary significantly. In the situation of limited budget, such as time or money, we propose a cost-sensitive model to select the next point based on expected improvement per second. A separate GP model is used to model the evaluation time of each setting of hyperparameters. By dividing the expected improvement of each point by its cost, the new acquisition function selects points that balance between good performance and cheap evaluation cost.
 
-\subsection{Learning the hyper-parameters}
+While it is important to find a good set of hyperparameters in the fewest number of trials, we should keep in mind that the execution time for different regions of the parameter spaces can vary significantly. In the situation of limited budget, such as time or money, we propose a cost-sensitive model to select the next point based on expected improvement per second. A separate GP model is used to model the evaluation time of each setting of hyperparameters. By dividing the expected improvement of each point by its cost, the new acquisition function selects points that balance between good performance and cheap evaluation cost.
 
 \section{Experimental Setup}
 
@@ -115,9 +158,7 @@ While it is important to find a good set of hyperparameters in the fewest number
 
 \section{Improvements}
 
-
 \section{References}
-
 
 \section{Roles and Contributions}
 
