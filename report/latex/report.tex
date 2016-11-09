@@ -82,45 +82,20 @@ Given $\textbf{y} = [y_1y_2\ldots y_i]^\top$, suppose we have a new input $\text
 \end{align*}
 
 \subsection{Problem Definition}
-Traditionally, there are 2 approaches to implementing recommender systems:
+An optimization problem typically involves the finding of a minimum f(x) by exploiting a model to pick the next point to evaluate the function. As training a machine learning algorithm can be expensive, it is worthwhile to invest more computational cost in picking a promising set of hyperparameters to evaluate next. In this paper, we choose a Gaussian Process model as our prior and an acquisition function to pick the next point to evaluate by constructing a utility function from the model posterior. 
 
-\begin{enumerate}
-	\item Content-based systems make recommendations based on item attributes. For example, a user who tends to watch many movies of the horror genre will be recommended a movie from that genre.
-	\item Collaborative filtering systems analyse the similarities between users and/or items to make recommendations. Users will be recommended items that are preferred by users with similar tastes.
-\end{enumerate}
-
-The task is thus rating prediction, given item and user attributes. In particular, suppose we are given a set of movies, $\mathcal{M}$, and a set of users, $\mathcal{U}$. We formulate an input matrix $X$ based on 2 types of models, per-user and per-movie, to predict user ratings $y = [y_1, y_2, \ldots, y_n]^\top$, where X is given by
-
-\begin{align*}
-	X = \begin{bmatrix}
-	x_1(1) & x_2(1) & \cdots & x_d(1)\\
-	\vdots & & \ddots & \vdots \\
-	x_1(N) & x_2(N) & \cdots & x_d(N) \\
-	\end{bmatrix}
-\end{align*}
+Besides the number of trials, we also take consideration of the time for each trial and pick the point that not only yield good result but fast to evaluate. 
 \subsection{Model Definition}
-In this paper, we assume that user ratings follow a Gaussian distribution. We formulate two different types of models, each exploiting a different set of features:
+In this paper, we assume that the performance measures for hyperparameters follow a Gaussian distribution. Given n set of hyperparameters which have been evaluated, we predict the performance measure of the next set.
 
-\begin{enumerate}
-	\item \textbf{Per-user:} The per-user model can be viewed as follows -- imagine the entire universe of movies, $\mathcal{M}$ -- the known ratings by this particular user consist of a subset of movies, $\mathcal{M}_i$. By utilising the item profiles of these $\vert \mathcal{M}_i \vert$ movies, the Gaussian process predicts the ratings for the unknown subset of movies, $\mathcal{M}_u$, where $\mathcal{M}_i \cup \mathcal{M}_u = \mathcal{M}$. The item profile consists of movie attributes such as year of release and average critic's rating.
-	\item \textbf{Per-movie:} The per-movie can be viewed using a similar analogy, but flipping the roles of users and items. Given the user profiles of all known user ratings for a specific movie, we predict the ratings that the remaining users are likely to give, based on the correlations between the user profiles. The user profile consists of user attributes such as age and gender.
-\end{enumerate}
+In the cost-sensitive model, we maintains another GP model to predict the execution time given the same input.
 
-Here is an example of how a prediction is made from these two models.
-Suppose Cara is a user in the system and she has provided ratings for a few movies.
-From these ratings provided by Cara, we train a per-user model for her.
-In addition we provide these ratings to their respective per-movie model so as to further train the models.
-One movie that Cara has not rated is Frozen and we are interested in predicting her rating for that movie.
-To do so, we first pass features from the movie Frozen (2013, Animation, Adventure and Comedy) into Cara's per-user GP model, which gives us a prediction for her rating.
-Likewise, we supply Frozen's per-movie model with Cara's features (age, gender) and obtain another prediction for the rating.
-Finally, we take a weighted average of the prediction to obtain the final prediction.
-This approach for taking the weighted average will be further explained under experimental evaluation.
 
-The reason for building two models is so that we can exploit both personal and demographic preferences. The per-user model tells us a user's personal preference for certain movie features such as genre or year of release whearas the per-movie model tells us demographic preferences for a particular movie. Another advantage of utilising two models to compute predictions is that we can still make reasonable predictions even when data is sparse. A new user would not provide many ratings on the system but we can give more weights to the per-movie model's prediction. Likewise for a new movie, we give more weights to the per-user model's prediction.
+\subsection{Acquisition Functions}
 
-\subsection{Choosing Model Parameters}
+\subsection{Covariance Functions}
 The GP function is mainly characterized by its covariance function after normalizing the data to attain a mean of 0. The covariance function produces a covariance matrix which is utilised by the Gaussian process model for inference.
-Our choice of kernel for both experimental models, per user and per movie, was the radial basis function(RBF) kernel
+We propose the use of the ARD Mat´ern 5/2 kernel
 \begin{align*}
 	k (\textbf{x},\textbf{x}') = \sigma^2\exp(-\frac{1}{2}\sum_{i=1}^{d}
 	\frac{(x_{i} - x_{i}')^{2}}{\ell_{i}^{2}})
@@ -129,6 +104,7 @@ where the hyperparameters $\sigma^{2}$ is the variance, $\ell $ is the lengthsca
 
 The choice of the rbf kernel was due to its ability to produce similar predictive ratings for two inputs with similar features based on their distance. If two users have contrasting preferences, it is highly unlikely that both will assign the same rating to their opposing's favorite movie.
 
+\subsection{Cost-sensitive Modeling}
 \subsection{Learning the hyper-parameters}
 \textbf{Lemma}: The product of two Gaussians function gives another (un-normalized) Gaussian function.
 
