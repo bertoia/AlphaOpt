@@ -106,247 +106,28 @@ The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and mul
 While it is important to find a good set of hyperparameters in the fewest number of trials, we should keep in mind that the execution time for different regions of the parameter spaces can vary significantly. In the situation of limited budget, such as time or money, we propose a cost-sensitive model to select the next point based on expected improvement per second. A separate GP model is used to model the evaluation time of each setting of hyperparameters. By dividing the expected improvement of each point by its cost, the new acquisition function selects points that balance between good performance and cheap evaluation cost.
 
 \subsection{Learning the hyper-parameters}
-\textbf{Lemma}: The product of two Gaussians function gives another (un-normalized) Gaussian function.
-
-\begin{align*}
-p(\mathbf{y}|X,\theta) = \int p(\mathbf{y}|\mathbf{f},X,\theta)
-p(\mathbf{f}|X,\theta) d\mathbf{f}
-\end{align*}
-
-where the prior \textbf{f} $|X,\theta \sim$ N(0,K).The log marginal likelihood of the gaussian process can be computed by marginalizing the likelihood with respect to function \textbf{f} and by using the lemma we obtain
-
-\begin{align*}
-\text{log }p(\mathbf{y}|X,\theta) =
-&-\frac{1}{2}\mathbf{y}^{T}(K+\sigma^{2}_{n}I)^{-1}\mathbf{y}
--\frac{1}{2}\text{log } |K+\sigma^{2}_{n}I| \\
-&-\frac{n}{2}\text{log }2\pi
-\end{align*}
-
-where the $\theta = \{\ell,\sigma^{2}_{n},...\}$ are the hyper-parameters which can be tuned by Markov Chain Monte Carlo methods or through Bayesian Optimisation (Neal 1997; Sundararajan and Keerthi 2001). Learning the hyperparameters is possible as the log likelihood partial can be derived. Letting $\mathcal{Q}$ to be
-$K + \sigma^{2}_{n}I$,
-
-\begin{align*}
-\frac{\partial}{\partial\theta}\text{log }p(\mathbf{y}|X,\theta) = -
-\frac{1}{2}\text{tr}(\mathcal{Q}^{-1}
-\frac{\partial\mathcal{Q}}{\partial\theta_{i}}) +
-\frac{1}{2}\mathbf{y}^T\mathcal{Q}^{-1}
-\frac{\partial\mathcal{Q}}{\partial\theta_{i}}
-\mathcal{Q}^{-1}\mathbf{y}
-\end{align*}
-
-We used a python library GPy to optimize our per-user and per-movie models.
-GPy implements the bayesian optimization framework for maximizing the likelihood function. Through the batch gradient descent method, the maximum a posteriori(MAP) estimation gives us the maximum likelihood(Rasmussen, 1997).
-
-This feedback to us critical information on the which are the important features in the per-user model through the Automatic Relevance Determination(ARD) represented by the lengthscale $\ell$. Suppose $\ell$ is short for the per user model input vector dimension "genre", then this suggests that "genre" is an important feature for predicting the rating.
 
 \section{Experimental Setup}
-\subsection{Dataset}
-Our primary dataset is the MovieLens\footnote{MovieLens is a movie recommender system created by GroupLens Research.}  1M Dataset which is a stable benchmark dataset widely used for evaluating recommender systems. The Dataset consists of three files, namely "ratings.dat", "movie.dat" and "user.dat" which contains around 1,000,000 ratings of approximately 3,900 movies made by 6,040 MovieLens users who joined MovieLens in 2000. Each rating is accompanied by a movie\_id and a user\_id so that we can map the rating to the respective user and movie.
-
-Besides ratings, the dataset also provides movie attributes. The following attributes were extracted from "movie.dat":
-
-\begin{description}
-	\item[movie\_id] movie identification number
-	\item[title] movie title
-	\item[genres] a list of genres that the movie belongs to
-\end{description}
-
-We also utilised user demographic information such as age, gender and occupation available from "user.dat":
-
-\begin{description}
-	\item[user\_id] user identification number
-	\item[gender] user's gender
-	\item[age] user's age
-	\item[occupation] user's occupation
-\end{description}
-
-To supplement this dataset, we combined it with the MovieLens+IMDb/Rotten Tomatoes Dataset released by HetRec 2011. Our motivation for doing so was to obtain movie critic ratings from Rotten Tomatoes. As the project progressed, we also extracted the relevant directors and actors for feature engineering purposes. The notable features extracted from this dataset include:
-
-\begin{description}
-	\item[AllCriticsRating] average critics' rating for the movie
-	\item[AudienceRating] average audience rating for the movie
-	\item[CriticsNumRatings] number of critics' ratings for the movie
-	\item[AudienceNumRatings] number of audience ratings for the movie
-\end{description}
-
-By combining all these datasets, we obtained a processed dataset consisting of user ratings augmented with user attributes and movie attributes.
 
 \subsection{Procedure}
 
-The pre-processed dataset contains both numerical and categorical features. We experimented on simple models based solely on numerical features as well as models that utilizes categorical features. We also experimented with different kernels such as the linear kernel and cosine kernel in addition to the RBF kernel.  In order to test the performance of our models, the data was split using stratified sampling into train and test sets\footnote{A 70-30 split was used, while stratification was done over the user id.}.
-
-The per-movie model uses of the following numeric features: user age, user gender\footnote{Encoded as Female: 0 Male: 1} .
-
-The basic per-user model uses of the following numeric features: year of movie release, average critics and audience rating, number of critics and audience rating.
-
-In the next section, we shall explain the different approaches taken to integrate non-numeric features into the models.
-
-\subsection{Feature Engineering}
-From our dataset, we were only able to obtain 3 demographic features: age, gender and occupation. However, the dataset contains a much richer set of features, including title and genres. We were also able to obtain the directors and actors by merging the original dataset with the supplementary dataset from HetRec. To utilise these non-numeric features so that we could input them into the Gaussian process, we have to first transform them into numerical features.
-
-One approach was to use one-hot encoding over the categorical features.
-We attempted this on the genre feature where a column is created for each of the genres.
-For each movie, the value is 1 if the movie belongs to that particular genre, 0 otherwise.
-However, this technique does not scale very well as the input dimension increases with the number of categorical classes.
-Since there are 20 movie genres in total, we sought to reduce the number of dimensions for the input matrix.
-
-To transform the remaining text data into useful numerical features and reduce the dimensions of the input, we employed Word2vec, which enables us to create word embeddings, or vector representations of words with a given corpus.
-Similar words are constructed such that they are close to each other within the vector space.
-We thus extracted the textual data from our datasets and processed them into a corpus suitable for training a Word2vec model on.
-The Word2vec model is then queried for vectors, $x = [x_1, \cdots, x_k]^\top$ representing each film.
-Additionally, we were able to obtain vectors representing each distinct genre present in the dataset.
-In training the model, it was found that a value of $k=8$ produced reasonable results from a test of similarity between selected films and genres.
-The following table gives some of the cosine similarities between genre vectors most similar to each other:
-
-\begin{center}
-	\begin{tabular}{llc}
-		\hline
-		Genre & Genre most similar to & Similarity\\
-		\hline
-		Drama & Crime & 0.9132 \\
-		Thriller & Mystery & 0.9834 \\
-		Animation & Children & 0.9621 \\
-		Sci-fi & Fantasy & 0.8729 \\
-		\hline
-	\end{tabular}
-\end{center}
-
-Another approach to reduce the number of dimensions is to select several genres as "buckets" and calculate the probability of a movie's genres given a bucket.
-This probability gives the intuition of how similar two genres are.
-For example, if a movie has the following 3 genres, adventure, animation, family, and the given bucket is comedy, we calculate the numerical feature as follows:
-
-\begin{align*}
-    &P(adventure, animation, family \mid comedy)\\
-    &= \max \begin{Bmatrix} P(adventure \mid comedy)
-    \\P(animation \mid comedy)
-    \\P(family \mid comedy)
-    \end{Bmatrix}
-\end{align*}
-
-Since the conditional independence assumption does not necessarily hold, we instead take the max of the individual probabilities.
-The individual probabilities are calculated based on their various counts in the training set.
-In addition, the probabilities are smoothed using Witten-Bell smoothing to ensure non-zero probabilities.
-
-$$ P(animation \mid comedy) = \frac{C(animation, comedy)}{C(comedy)} $$
-
-Choosing from the top popular genres (based on their counts), we identify 9 buckets: drama, comedy, crime, action, thriller, horror, fantasy, family and animation.
-This probabilistic approach allows us to compare the distance between genres and buckets. It also reduces the dimension of the input vector significantly.
-
 \section{Experimental Evaluation}
-Our approach involves combining the predictions from the per-user and per-movie models.
-We thus train a GP model for each of the 6,040 users and each of the 3,090 movies using the processed data.
-The number of ratings per user ranges from 18 to 2264 with a median of 94. The number of ratings per movie ranges from 1 to 3428 with a median of 135.
-Given that the maximum training samples per GP model is only in the thousands, there was no need to use any techniques for handling large datasets in GP model.
-
-Evaluating the accuracy of the models is slightly more involved as we have to feed the right entry to the right model.
-Suppose we want to evaluate the accuracy of the per-user models using the test set. For each entry on the test set,
-we pass the entry to the per-user model that matches the entry's user\_id and obtain the prediction for that entry.
-We do this for every entry on the test set and that gives us the full prediction for the test set.
-The procedure is repeated in a similar manner for per-movie models.
-
-As mentioned, we experimented with various combinations of features and kernels.
-The Mean Absolute Error (MAE) and R-Squared ($R^{2}$) for the models trained are given as follows:
-\begin{center}
-	\begin{tabular}{lllll}
-		\hline
-		Type & Features & Kernel & MAE & $R^{2}$ \\
-		\hline
-		\multirow{3}{*}{Per-Movie} &\multirow{3}{*}{Numeric}
-		 & RBF & 0.7823 & \textbf{0.2308}\\
-		& & Cosine & 0.7823 & \textbf{0.2308} \\
-		& & Linear & 0.7823 & 0.2307 \\
-		\hline
-		\multirow{5}{*}{Per-User} & Numeric & \multirow{5}{*}{RBF} & \textbf{0.8127} & \textbf{0.1663} \\
-		& OneHotEncoding & & 0.8273 & 0.1424 \\
-		& Word2vec Genres & & 0.8210 & 0.1544 \\
-		& Word2vec Movies & & 0.8278 & 0.1424 \\
-		& Probabilistic   & & 0.8204 & 0.1534\\
-		\hline
-	\end{tabular}
-\end{center}
-We observed that when predicting with just per-movie or per-user models by themselves, per-movie models out performs per-user models.
-This could be due to per-movie models having more training points on average.
-\subsection{Combining the models}
-The predictions from the per-user and per-movie models can be combined to give an estimate with a lower variance.
-While we can take the average of both predictions as the final prediction, we can do better than that as every prediction comes with a variance which allows to calculate the optimal weights that minimises variance of the final prediction. Below we shall show how to obtain the optimal weights given the prediction variances. Suppose the per-user model returns $(\widehat{y}_{user}, \sigma^{2}_{user})$ and the per-movie model returns $(\widehat{y}_{movie},\sigma^{2}_{movie})$. Given that $\alpha + \beta = 1$:
-\begin{align*}
-	 \widehat{y}_{final} &= \alpha\,\widehat{y}_{user} + \beta\,\widehat{y}_{movie} \\
-	 V[\widehat{y}_{final}] &= V[\alpha\,\widehat{y}_{user} + \beta\,\widehat{y}_{movie}]\\
-	&= \alpha^{2}\,V[\widehat{y}_{per\_user}] + \beta^{2}\,V[\widehat{y}_{per\_movie}] \\
-	&= \alpha^{2}\,\sigma^{2}_{user} + \beta^{2}\,\sigma^{2}_{movie}\\
-	&= \alpha^{2}\,\sigma^{2}_{user} + (1-\alpha)^{2}\,\sigma^{2}_{movie}\\
-	&= (\sigma^{2}_{user}+\sigma^{2}_{movie})\alpha^{2}-(2\sigma^{2}_{movie})\alpha+\sigma^{2}_{movie}
-\end{align*}
-To find the minimum, we differentiate $V[\widehat{y}_{final}]$:
-\begin{align*}
-\frac{\partial}{\partial\alpha}V[\widehat{y}_{final}] = 2(\sigma^{2}_{user}+\sigma^{2}_{movie})\alpha-(2\sigma^{2}_{movie})
-\end{align*}
-and equating it to zero give us the optimal value of $\alpha$:
-\begin{align*}
-0&=2(\sigma^{2}_{user}+\sigma^{2}_{movie})\alpha-(2\sigma^{2}_{movie})\\
-\alpha&=\sigma^{2}_{movie}/(\sigma^{2}_{user}+\sigma^{2}_{movie})
-\end{align*}
-Substituting the result into the equation of $\widehat{y}_{final}$, we get the optimal method to combine the two predictions:
-\begin{align*}
-\widehat{y}_{final} &=\frac{\sigma^{2}_{movie}\widehat{y}_{user} + \sigma^{2}_{user}\widehat{y}_{movie}}{\sigma^{2}_{user}+\sigma^{2}_{movie}}\\
-V[\widehat{y}_{final}]&=\frac{\sigma^{2}_{movie}\sigma^{2}_{user}}{\sigma^{2}_{user}+\sigma^{2}_{movie}}
-\end{align*}
-The following table gives validation results for different types of per-user models combined with the numeric per-movie model, using the RBF kernel:
-\begin{center}
-	\begin{tabular}{llll}
-		\hline
-		Combination & Per-User & MAE & $R^{2}$ \\
-		\hline
-		\multirow{4}{*}{Variance Avg} & Numeric &  0.7664 & \textbf{0.2752}\\
-		& OneHotEnc & 0.7667 & 0.2691 \\
-		& Word2Vec Genres  & \textbf{0.7634} & \textbf{0.2752} \\
-		& Probabilistic & 0.7640 & 0.2724 \\
-		\hline
-		\multirow{4}{*}{Simple Avg} & Numeric & \textbf{0.7639} & \textbf{0.2742}\\
-		& OneHotEnc & 0.7704 & 0.2665 \\
-		& Word2Vec Genres & 0.7665 & 0.2733 \\
-		& Probabilistic & 0.7670 & 0.2706 \\
-		\hline
-	\end{tabular}
-\end{center}
-The combined predictions are much stronger than just taking one set of predictions. Although the effect is not as dramatic as we hoped, there was a small improvement in accuracy when we used the variance weighted average over the simple average counterpart.
 
 \section{Improvements}
-The RBF kernel exploits the similarity of inputs through the euclidean distance. However, Wang(2008) mentions that the cosine distance could also give us important information to predict the ratings in the per-user and per-movie model.
 
-Therefore, to improve the prediction ratings using Gaussian Process Regression, we could create a new kernel function as proposed by Aftab(2014) used in neural networks.
-\begin{align*}
-	k (\textbf{x},\textbf{x}') =
-	\alpha \cos(x,x') +
-	\beta\sigma^2\exp(-\gamma||\mathbf{x} - \mathbf{x}'||^{2})
-\end{align*}
-
-where the hyperparameters $\theta = \lbrace \alpha, \beta, \sigma^{2}, \gamma, ...\rbrace$ can be learnt from cross validation.
-
-Since the cosine kernel and the RBF kernel are both valid kernels, then the new kernel can also be shown to be positive semi-definite and symmetric which satifies the criteria for a valid kernel.
 
 \section{References}
 
-Aftab, W., Moinuddin, M., \& Shaikh, M. S. (2014). A Novel Kernel for RBF Based Neural Networks. Abstract and Applied Analysis, 2014, 1-10. doi:10.1155/2014/176253\\
-
-Neal, R. M. (1997, January 1). Monte Carlo implementation of Gaussian process models for Bayesian regression an. Retrieved October 13, 2016, from http://adsabs.harvard.edu/cgi-bin/bib\_query?arXiv:physics/9701026\\
-
-Rasmussen, \& Edward, C. (1997, January 1). Evaluation of gaussian processes and other methods for non-linear regression. Retrieved October 13, 2016, from http://dl.acm.org/citation.cfm?id=927743\\
-
-
-Sundararajan, S., \& Keerthi, S. S. (2001). Predictive Approaches for Choosing Hyperparameters in Gaussian Processes. Neural Computation, 13(5), 1103-1118. doi:10.1162/08997660151134343\\
-
-Wang, J., Vries, A. P., \& Reinders, M. J. (2008). Unified relevance models for rating prediction in collaborative filtering. ACM Transactions on Information Systems,26(3), 1-42. doi:10.1145/1361684.1361689\\
 
 \section{Roles and Contributions}
 
 \begin{description}
-\item [Cheong Xuan Hao Filbert] Partial Modeling, Technical Evaluation
-\item [Gay Ming Jian Davis] Motivating Application, Report Writing
-\item [Karen Ang Mei Yi] Pre-Processing, Feature Engineering and Report Writing
-\item [Quek Chang Rong Sebastian] Pre-Processing, Feature Engineering
-\item [Vincent Seng Boon Chin] Modeling, Pre-Processing and Experimental Evaluation
-\item [Xu Ruofan] Report Writing
+\item [Cheong Xuan Hao Filbert]
+\item [Gay Ming Jian Davis]
+\item [Karen Ang Mei Yi]
+\item [Quek Chang Rong Sebastian]
+\item [Vincent Seng Boon Chin]
+\item [Xu Ruofan]
 \end{description}
 
 \end{document}
