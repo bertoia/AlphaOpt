@@ -97,14 +97,14 @@ In the cost-sensitive model, we maintains another GP model to predict the execut
 The GP function is mainly characterized by its covariance function after normalizing the data to attain a mean of 0. The covariance function produces a covariance matrix which is utilised by the Gaussian process model for inference.
 We propose the use of the ARD Mat´ern 5/2 kernel
 \begin{align*}
-	k (\textbf{x},\textbf{x}') = \sigma^2\exp(-\frac{1}{2}\sum_{i=1}^{d}
-	\frac{(x_{i} - x_{i}')^{2}}{\ell_{i}^{2}})
+	k (\textbf{x},\textbf{x}') = \sigma^2(1+\sqrt5r+\frac{5}{3}r^2)\exp(-\sqrt5r)
 \end{align*}
-where the hyperparameters $\sigma^{2}$ is the variance, $\ell $ is the lengthscale, d is the dimension of the input vector $ x_{i}. $
 
-The choice of the rbf kernel was due to its ability to produce similar predictive ratings for two inputs with similar features based on their distance. If two users have contrasting preferences, it is highly unlikely that both will assign the same rating to their opposing's favorite movie.
+The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and multivariate statistical analysis on metric spaces. Due to its stationary and isotropic nature, it is able to produce similar predictive output for two inputs that are d units distant from each other. 5/2 is chosen for its ability to produce smooth and yet sensitive curves.
 
 \subsection{Cost-sensitive Modeling}
+While it is important to find a good set of hyperparameters in the fewest number of trials, we should keep in mind that the execution time for different regions of the parameter spaces can vary significantly. In the situation of limited budget, such as time or money, we propose a cost-sensitive model to select the next point based on expected improvement per second. A separate GP model is used to model the evaluation time of each setting of hyperparameters. By dividing the expected improvement of each point by its cost, the new acquisition function selects points that balance between good performance and cheap evaluation cost.
+
 \subsection{Learning the hyper-parameters}
 \textbf{Lemma}: The product of two Gaussians function gives another (un-normalized) Gaussian function.
 
