@@ -72,8 +72,29 @@ problems such as classification and regression. Automating hyperparameter optimi
 can better improve the performance of these algorithms, which can indirectly lead
 to greater scientific or industrial advances and innovations.
 
-Current tuning strategies outlined above essentially conduct an exhaustive search
-through the parameter space. This problem is usually mitigated by increasing search step or narrowing parameter space. For example, in tuning of Support Vector Machines (SVM) with RBF kernel, it is recommended that C and $\gamma$ are searched exponentially in base 2. A more economical approach could be to search in base 10. It would be ideal to have an algorithm that cleverly moves through the parameter space in every trial. This can enable us to reach the near optimum with as little trials as possible. It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation.
+Current tuning strategies outlined above has their limitations. Grid search is essentially
+conducting an exhaustive search in the parameter space and thus potentially expensive,
+especially when the parameter space is continuous and has a large domain size. For
+grid search, this problem is usually mitigated by increasing search step interval
+or narrowing parameter space. For example, in tuning of Support Vector Machines
+(SVM) with RBF kernel, it is recommended that $\textit{C}$ and $\gamma$ are searched
+exponentially in base 2: $\textit{C}=\{2^{-5},2^{-3},...,2^{15}\}$ and
+$\gamma=\{2^{-15},2^{-13},...,2^{2}\}$. A more economical approach could be to search
+$\textit{C}$ exponentially in base 10 for a coarser search
+($\textit{C}=\{10^{-5},10^{-3},...,10^{15}\}$) and searching over a smaller domain
+exponentially in base 2 for $\gamma$ ($\gamma=\{2^{-6},2^{-4},...,2^{2}\}$). For random
+search, while it is more effective than grid search epecially in high-dimensionsal spaces,
+it is stochastic in nature and termination conditions (maximum iterations or threhold change)
+has to be specified. Therefore the trade-off between model performance and time needed
+for tuning is arbitrarily determined.
+
+In light of the abovementioned problems with conventional strategies, it would be ideal
+to have an algorithm that allow us to mathemathically formuate the exploit and explore
+trade-off in hyperparameter optimization to train the machine learning model the least
+amount of times on parameters that, on each training evaluation instance, acquire the
+most information (the concept of "infomation", known as criterion will have to be defined,
+as seen later). This can enable the model to reach the near optimum with as little trials as possible.
+It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation.
 
 Bayesian optimisation involves the use of a surrogate function (or response surface)
 which approximates the objective. For a certain number of iterations, or until
@@ -126,7 +147,7 @@ as well as the time needed to optimise the objective.
 % Describe clearly and CONCISELY the technical details of the active learning or Bayesian optimization algorithm that you are using.
 
 \subsection{Problem Definition}
-An optimization problem typically involves the finding of a minimum f(x) by exploiting a model to pick the next point to evaluate the function. As training a machine learning algorithm can be expensive, it is worthwhile to invest more computational cost in picking a promising set of hyperparameters to evaluate next. In this paper, we choose a Gaussian Process model as our prior and an acquisition function to pick the next point to evaluate by constructing a utility function from the model posterior. 
+An optimization problem typically involves the finding of a minimum f(x) by exploiting a model to pick the next point to evaluate the function. As training a machine learning algorithm can be expensive, it is worthwhile to invest more computational cost in picking a promising set of hyperparameters to evaluate next. In this paper, we choose a Gaussian Process model as our prior and an acquisition function to pick the next point to evaluate by constructing a utility function from the model posterior.
 
 Besides the number of trials, we also take consideration of the time for each trial and pick the point that not only yield good result but fast to evaluate.
 
