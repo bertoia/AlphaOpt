@@ -103,6 +103,8 @@ We propose the use of the ARD Mat´ern 5/2 kernel
 The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and multivariate statistical analysis on metric spaces. Due to its stationary and isotropic nature, it is able to produce similar predictive output for two inputs that are d units distant from each other. 5/2 is chosen for its ability to produce smooth and yet sensitive curves.
 
 \subsection{Cost-sensitive Modeling}
+While it is important to find a good set of hyperparameters in the fewest number of trials, we should keep in mind that the execution time for different regions of the parameter spaces can vary significantly. In the situation of limited budget, such as time or money, we propose a cost-sensitive model to select the next point based on expected improvement per second. A separate GP model is used to model the evaluation time of each setting of hyperparameters. By dividing the expected improvement of each point by its cost, the new acquisition function selects points that balance between good performance and cheap evaluation cost.
+
 \subsection{Learning the hyper-parameters}
 \textbf{Lemma}: The product of two Gaussians function gives another (un-normalized) Gaussian function.
 
