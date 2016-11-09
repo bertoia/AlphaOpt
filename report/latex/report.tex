@@ -15,6 +15,7 @@
 /Title (Bayesian Optimisation of Machine Learning Algorithms)
 /Author ()}
 \setcounter{secnumdepth}{1}
+\DeclareMathOperator*{\argmax}{arg\,max}
  \begin{document}
 % The file aaai.sty is the style file for AAAI Press
 % proceedings, working notes, and technical reports.
@@ -145,18 +146,56 @@ as well as the time needed to optimise the objective.
 
 \section{Technical Approach}
 % Describe clearly and CONCISELY the technical details of the active learning or Bayesian optimization algorithm that you are using.
+As mentioned, Bayesian optimisation is a stochastic approach which attempts to
+balance the exploration-exploitation tradeoff in the optimisation of an objective.
+In this section, we will describe in greater detail the problem at hand, as well
+as explain the models and algorithms used.
 
 \subsection{Problem Definition}
-An optimization problem typically involves the finding of a minimum f(x) by exploiting a model to pick the next point to evaluate the function. As training a machine learning algorithm can be expensive, it is worthwhile to invest more computational cost in picking a promising set of hyperparameters to evaluate next. In this paper, we choose a Gaussian Process model as our prior and an acquisition function to pick the next point to evaluate by constructing a utility function from the model posterior.
-
-Besides the number of trials, we also take consideration of the time for each trial and pick the point that not only yield good result but fast to evaluate.
+In hyperparameter tuning, we consider the problem of finding the global maximum of
+an unknown function $f$:
+$$\textbf{x*}=\argmax_{\textbf{x}\in\mathcal{X}}{f(x)}$$
+where $\textbf{x} \in \mathbb{R^d}$ and $\mathcal{X}$ is a bounded subset of 
+$\mathbb{R}^d$. In general, the process works as follows: the Gaussian Process model
+is initialised with a number of observations and acts as a prior.
+An acquisition function, $\alpha(\textbf{x})$, then makes use
+of the posterior, in particular, the predictive mean and uncertainty,
+to compute the utility of a point. A necessary condition is that the computation and
+optimisation of this acquisition function is much less costly than the objective.
+Optimisation of $\alpha$ gives us the next point to evaluate, $\textbf{x}'$. The
+objective function is evaluated at $\textbf{x}'$. Subsequently, the Gaussian Process 
+model is updated with the new data point, $(\textbf{x}', y(\textbf{x}'))$, and the
+process is repeated until we hit the budget of evaluations allowed, or till
+convergence.
 
 \subsection{Model Definition}
-In this paper, we assume that the performance measures for hyperparameters follow a Gaussian distribution. Given n set of hyperparameters which have been evaluated, we predict the performance measure of the next set.
+In this paper, we assume that the performance measures for hyperparameters follow a 
+Gaussian distribution. We model the unknown objective as a Gaussian Process.
+Given that we have already evaluated the following set of hyperparameters, 
+$\mathcal{D}=\{\textbf{x}_1, \cdots, \textbf{x}_n\}$, the Gaussian 
+Process model predicts the performance measure of the next set of hyperparameters,
+$\textbf{x}'$.
 
-In the cost-sensitive model, we maintains another GP model to predict the execution time given the same input.
+In the context of hyperparameter tuning, the time taken to evaluate the objective is
+also an important consideration. Consequently, we also have a cost model where
+another Gaussian Process model is used to predict the execution time for a particular
+set of hyperparameters. In this way, we can select points which are not only
+predicted to have a high accuracy in the underlying machine learning model, they
+are also likely to be fast to evaluate. The model used in our experiments is thus
+a cost-sensitive model that varies in the type of acquisition function used.
+
+\subsection{Cost-sensitive Modeling}
+While it is important to find a good set of hyperparameters in the least number of 
+trials, we should keep in mind that the execution time for different regions of the 
+parameter space can vary significantly. In the situation of limited budget, such as 
+time or money, the cost-sensitive model can select the next point based on expected 
+improvement per second. In this cost-sensitive model, dividing the expected improvement 
+of each point by its cost allows this acquisition function to select points that 
+balance between good performance and cheap evaluation cost.
 
 \subsection{Acquisition Functions}
+It is however, important to also keep in mind the tension between exploration and
+exploitation.
 
 \subsection{Covariance Functions}
 The GP function is mainly characterized by its covariance function after normalizing the data to attain a mean of 0. The covariance function produces a covariance matrix which is utilised by the Gaussian process model for inference.
@@ -166,10 +205,6 @@ We propose the use of the ARD Mat´ern 5/2 kernel
 \end{align*}
 
 The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and multivariate statistical analysis on metric spaces. Due to its stationary and isotropic nature, it is able to produce similar predictive output for two inputs that are d units distant from each other. 5/2 is chosen for its ability to produce smooth and yet sensitive curves.
-
-\subsection{Cost-sensitive Modeling}
-
-While it is important to find a good set of hyperparameters in the fewest number of trials, we should keep in mind that the execution time for different regions of the parameter spaces can vary significantly. In the situation of limited budget, such as time or money, we propose a cost-sensitive model to select the next point based on expected improvement per second. A separate GP model is used to model the evaluation time of each setting of hyperparameters. By dividing the expected improvement of each point by its cost, the new acquisition function selects points that balance between good performance and cheap evaluation cost.
 
 \section{Experimental Setup}
 
