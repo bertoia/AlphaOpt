@@ -73,20 +73,20 @@ problems such as classification and regression. Automating hyperparameter optimi
 can better improve the performance of these algorithms, which can indirectly lead
 to greater scientific or industrial advances and innovations.
 
-Current tuning strategies outlined above has their limitations. Grid search is essentially
-conducting an exhaustive search in the parameter space and thus potentially expensive,
-especially when the parameter space is continuous and has a large domain size. For
-grid search, this problem is usually mitigated by increasing search step interval
-or narrowing parameter space. For example, in tuning of Support Vector Machines
-(SVM) with radial basis function (RBF) kernel, it is recommended that $\textit{C}$ and $\gamma$ are searched
+The current tuning strategies outlined above have their limitations. Grid search essentially
+conducts an exhaustive search in the parameter space. Computationally, this is expensive
+when the parameter space is continuous and has a large domain size. This problem
+is usually mitigated by increasing the search step interval
+or by narrowing the parameter space. For example, in the tuning of Support Vector Machines
+(SVM) with the radial basis function (RBF) kernel, it is recommended that $\textit{C}$ and $\gamma$ are searched
 exponentially in base 2: $\textit{C}=\{2^{-5},2^{-3},...,2^{15}\}$ and
 $\gamma=\{2^{-15},2^{-13},...,2^{2}\}$. A more economical approach could be to search
 $\textit{C}$ exponentially in base 10 for a coarser search
 ($\textit{C}=\{10^{-5},10^{-3},...,10^{15}\}$) and searching over a smaller domain
-exponentially in base 2 for $\gamma$ ($\gamma=\{2^{-6},2^{-4},...,2^{2}\}$). For random
-search, while it is more effective than grid search epecially in high-dimensionsal spaces,
-it is stochastic in nature and termination conditions (maximum iterations or threhold change)
-has to be specified. Therefore the trade-off between model performance and time needed
+exponentially in base 2 for $\gamma$ ($\gamma=\{2^{-6},2^{-4},...,2^{2}\}$). On the other hand, while random
+search is more effective than grid search especially in high-dimensionsal spaces,
+it is stochastic in nature and termination conditions (maximum iterations or threshold change)
+have to be specified. Therefore the trade-off between model performance and time needed
 for tuning is arbitrarily determined.
 
 However, random search performs poorly when tuning algorithms with numerous hyperparameters for planning and scheduling$[1]$. Consider the case of constructing the optimal finacial asset portfolio using IBM ILOG CPLEX given the investment guidelines. Since the solver has 76 free hyperparameters$[2]$, it is impractical to tune it by hand and using random grid search is inefficient.
@@ -99,9 +99,17 @@ most information (the concept of "infomation", known as criterion will have to b
 as seen later). This can enable the model to reach the near optimum with as little trials as possible.
 It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation(BO).
 
+<<<<<<< HEAD
 Bayesian optimisation requires two key components one of which is the use of a surrogate model (or response surface)$[5]$ containing our prior belief of the unknown function to approximate the objective.Secondly, for a certain number of iterations, or until
 convergence, we pick, according to a heuristic or function, henceforth known as the
 acquisition function, the next best point to be evaluated by the objective. The
+=======
+Bayesian optimisation requires two key components, one of which is the use of a surrogate model (or response surface)
+which approximates the objective. The second component is the minimization of the loss function to determine the most suitable location to query.
+For a certain number of iterations, or until convergence, we pick, according to a heuristic or function,
+the next best point to be evaluated by the objective to minimize the regret.
+This secondary function will henceforth be referred to as the acquisition function. The
+>>>>>>> cafa0acaad71de269cb2b74a5b0a0cf1932bd558
 surrogate model is updated in this process to reflect our new belief. 
 
 In particular, the Gaussian Process(GP) model is used as the surrogate model
@@ -174,7 +182,7 @@ convergence.
 
 \subsection{Model Definition}
 In this paper, we assume that the performance measures for hyperparameters follow a 
-Gaussian distribution. We model the unknown objective as a Gaussian Process.
+Gaussian distribution. As mentioned, we model the unknown objective as a Gaussian Process.
 Given that we have already evaluated the following set of hyperparameters, 
 $\mathcal{D}=\{\textbf{x}_1, \cdots, \textbf{x}_n\}$, the Gaussian 
 Process model predicts the performance measure of the next set of hyperparameters,
@@ -185,7 +193,7 @@ also an important consideration. Consequently, we also have a cost model where
 another Gaussian Process model is used to predict the execution time for a particular
 set of hyperparameters. In this way, we can select points which are not only
 predicted to have a high accuracy in the underlying machine learning model, they
-are also likely to be fast to evaluate. The model used in our experiments is thus
+are also likely to be fast to evaluate. Our experiments thus employ
 a cost-sensitive model that varies in the type of acquisition function used.
 
 \subsection{Cost-sensitive Modeling}
@@ -261,8 +269,8 @@ of the decision surface.
 Additionally, a kernel can be supplied to map points in data to higher dimension. In our
 experiment, we used the RBF kernel.
 \begin{align*}
-  k (\textbf{x},\textbf{x}') = \exp(-\gamma||(\textbf{x},\textbf{x}')||)^2 \\
-  where \gamma = \frac{1}{2\sigma^2}
+  k (\textbf{x},\textbf{x}') &= \exp(-\gamma||(\textbf{x},\textbf{x}')||)^2 \\
+  &\text{where} \ \gamma = \frac{1}{2\sigma^2}
 \end{align*}
 The parameter $\gamma$ is the inverse of the radius of influence of samples selected by the
 model as support vectors. In other words, a smaller $\gamma$ leads to a more constraint
