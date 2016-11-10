@@ -173,7 +173,7 @@ convergence.
 
 \subsection{Model Definition}
 In this paper, we assume that the performance measures for hyperparameters follow a 
-Gaussian distribution. We model the unknown objective as a Gaussian Process.
+Gaussian distribution. As mentioned, we model the unknown objective as a Gaussian Process.
 Given that we have already evaluated the following set of hyperparameters, 
 $\mathcal{D}=\{\textbf{x}_1, \cdots, \textbf{x}_n\}$, the Gaussian 
 Process model predicts the performance measure of the next set of hyperparameters,
@@ -184,7 +184,7 @@ also an important consideration. Consequently, we also have a cost model where
 another Gaussian Process model is used to predict the execution time for a particular
 set of hyperparameters. In this way, we can select points which are not only
 predicted to have a high accuracy in the underlying machine learning model, they
-are also likely to be fast to evaluate. The model used in our experiments is thus
+are also likely to be fast to evaluate. Our experiments thus employ
 a cost-sensitive model that varies in the type of acquisition function used.
 
 \subsection{Cost-sensitive Modeling}
