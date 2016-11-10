@@ -9,6 +9,9 @@ from GPyOpt.core.evaluators.base import EvaluatorBase
 from GPyOpt.core.task.cost import CostModel
 from GPyOpt.core.task.cost import constant_cost_withGradients
 from GPyOpt.util.general import get_quantiles
+from GPyOpt.optimization import optimizer
+from GPyOpt.util.stats import initial_design
+from GPyOpt.methods.modular_bayesian_optimization import ModularBayesianOptimization
 import math
 import numpy as np
 from GPyOpt.models import GPModel
@@ -42,6 +45,11 @@ class CustomCostModel(CostModel):
             self.cost_withGradients = cost_withGradients
             self.cost_type = 'Used defined cost'
 
+    def get_model_parameters(self):
+        """
+        Returns a 2D numpy array with the parameters of the model
+        """
+        return np.atleast_2d(self.cost_model.get_model_parameters())
 
 
 """
@@ -143,7 +151,7 @@ class PITarget(AcquisitionBase):
     analytical_gradient_prediction = True
 
     def __init__(self, model, space, optimizer=None, cost_withGradients=None, jitter=0.2, target=None):
-        super(PIThreshold, self).__init__(model, space, optimizer, cost_withGradients=cost_withGradients)
+        super(PITarget, self).__init__(model, space, optimizer, cost_withGradients=cost_withGradients)
         self.jitter = jitter
         self.target = 1 if target is None else target
 
@@ -166,6 +174,21 @@ class PITarget(AcquisitionBase):
         return f_acqu, df_acqu
 
 
+class RandomAcquisition(AcquisitionBase):
+    """
+    Use this for random search
+    """
+
+    def __init__(self, model, space, optimizer, cost_withGradients=None):
+        super(RandomAcquisition, self).__init__(model, space, optimizer, cost_withGradients=None)
+
+    def _compute_acq(self, x):
+        return np.random.uniform()
+
+    def _compute_acq_withGradients(self, x):
+        return np.random.uniform()
+
+
 class MultiAcquisitions(EvaluatorBase):
     """
     Usage: Pass in a list of acquisition functions that you want to be evaluated
@@ -181,3 +204,30 @@ class MultiAcquisitions(EvaluatorBase):
         for i in range(1, len(self.acquisitions)):
             X_batch = np.vstack((X_batch, self.acquisitions[i].optimize()))
         return X_batch
+
+# My BO
+class MyModularBayesianOptimization(ModularBayesianOptimization):
+    """
+    ModularBayesianOptimization with cost parameter saving
+    """
+    def __init__(self, model, space, objective, acquisition, evaluator, X_init,
+                 Y_init=None, cost=None, normalize_Y=True, model_update_interval=1):
+        self.cost_parameters_iterations = None
+        self.initial_design_numdata = len(X_init)
+        super(MyModularBayesianOptimization, self).__init__(self, model, space, objective,
+                                                            acquisition, evaluator, X_init,
+                                                            Y_init=Y_init, cost=cost, normalize_Y=normalize_Y,
+                                                            model_update_interval=model_update_interval)
+
+    def _save_model_parameter_values(self):
+        if self.model_parameters_iterations == None:
+            self.model_parameters_iterations = self.model.get_model_parameters()
+        else:
+            self.model_parameters_iterations = np.vstack((self.model_parameters_iterations,
+                                                          self.model.get_model_parameters()))
+        if self.cost_parameters_iterations == None:
+            self.cost_parameters_iterations = self.cost.get_model_parameters()
+        else:
+            self.cost_parameters_iterations = np.vstack(
+                (self.cost_parameters_iterations, self.cost.get_model_parameters()))
+
