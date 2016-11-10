@@ -250,8 +250,8 @@ of the decision surface.
 Additionally, a kernel can be supplied to map points in data to higher dimension. In our
 experiment, we used the RBF kernel.
 \begin{align*}
-  k (\textbf{x},\textbf{x}') = \exp(-\gamma||(\textbf{x},\textbf{x}')||)^2 \\
-  where \gamma = \frac{1}{2\sigma^2}
+  k (\textbf{x},\textbf{x}') &= \exp(-\gamma||(\textbf{x},\textbf{x}')||)^2 \\
+  &\text{where} \ \gamma = \frac{1}{2\sigma^2}
 \end{align*}
 The parameter $\gamma$ is the inverse of the radius of influence of samples selected by the
 model as support vectors. In other words, a smaller $\gamma$ leads to a more constraint
