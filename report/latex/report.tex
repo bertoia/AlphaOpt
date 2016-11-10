@@ -197,17 +197,48 @@ of each point by its cost allows this acquisition function to select points that
 balance between good performance and cheap evaluation cost.
 
 \subsection{Acquisition Functions}
-It is however, important to also keep in mind the tension between exploration and
-exploitation.
+One of the key challenges in Bayesian optimisation is that of balancing the trade-off
+between exploration and exploitation. This issue surfaces in the acquisition function,
+where one has to select the next point to be explored. A purely exploitative function
+will choose points with a high predictive mean. In contrast, a purely exploratory
+function will choose points with a high predictive uncertainty.
+
+We gathered a few interesting insights from our research. 
+Firstly, the problem of selecting the next point can be viewed as a infinite-armed
+bandit problem \cite{hoffman2011portfolio}, which implies some relationship to
+reinforcement learning, where, similarly, we receive evaluative and not instructive
+feedback. As such, it is interesting to consider the possibility of modelling the
+acquisition function with Q-learning in mind. The off-policy nature of the latter is
+a truly remarkable quality, which would certainly be valuable in the setting of not
+just hyperparameter tuning, but also Bayesian optimisation in general.
+
+Additionally, it is interesting to note that most of the traditional acquisition
+functions focus largely on the minimisation of cumulative regret:
+$$\sum_{i=1}^{n} f(\textbf{x}*) - f(\textbf{x}')$$
+This includes acquisition functions such as GP-UCB. However, more recent 
+information-based approaches such as Entropy Search \cite{hennig2012entropy} and 
+Predictive Entropy Search approach the problem with an intriguing perspective.
+Particularly in the context of hyperparameter tuning, we are often given a budget,
+such as the number of function evaluations allowed. This implies some time sensitivity
+and a finite horizon for the optimiser. Thus, any regret-bounds proven in the limit
+are not especially useful in this context. In fact, one might argue that, if the
+budget is the number of function evaluations, it is perfectly alright for the
+acquisition function to pick a costly and potentially poor-performing point,
+on the condition that this point provides us with the maximal amount of information.
+This information gain essentially clears the fog and gives us a better view of the
+true objective and hence, the optimum. It is different from the previous approaches
+in that only our final posterior and the predicted optimum matters. Evaluations
+before the end of our finite time budget need not necessarily be high-performing.
 
 \subsection{Covariance Functions}
 The GP function is mainly characterized by its covariance function after normalizing the data to attain a mean of 0. The covariance function produces a covariance matrix which is utilised by the Gaussian process model for inference.
-We propose the use of the ARD Mat´ern 5/2 kernel
+In our paper, we use the Matern 5/2 kernel with Automatic Relevance Determination (ARD).
+
 \begin{align*}
 	k (\textbf{x},\textbf{x}') = \sigma^2(1+\sqrt5r+\frac{5}{3}r^2)\exp(-\sqrt5r)
 \end{align*}
 
-The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and multivariate statistical analysis on metric spaces. Due to its stationary and isotropic nature, it is able to produce similar predictive output for two inputs that are d units distant from each other. 5/2 is chosen for its ability to produce smooth and yet sensitive curves.
+The Matern 5/2 kernel is commonly used in the areas of machine learning and multivariate statistical analysis on metric spaces. Due to its stationary and isotropic nature, it is able to produce similar predictive output for two inputs that are $d$ units away from each other. $5/2$ is chosen for its ability to produce smooth and yet sensitive curves.
 
 \section{Experimental Setup}
 
@@ -270,6 +301,7 @@ the model underfitting the data.
 \section{Improvements}
 
 \section{References}
+% Consider using BibTeX
 $[1]$https://arxiv.org/pdf/1206.2944.pdf  
 $[2]$https://www.cs.ox.ac.uk/people/nando.defreitas/publications/BayesOptLoop.pdf  
 $[3]$ http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf
@@ -284,5 +316,8 @@ $[3]$ http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf
 \item [Vincent Seng Boon Chin]
 \item [Xu Ruofan]
 \end{description}
+
+\bibliographystyle{aaai}
+\bibliography{ref}
 
 \end{document}
