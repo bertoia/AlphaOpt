@@ -65,7 +65,7 @@ that is, the set of values: $\Theta=\{0.0, 0.5, 1.0\}$. Then, the points that on
 would evaluate the algorithm at would be given by the cartesian product: $\Theta \times \Theta$.
 The second strategy simply involves the random selection of a number of points
 within the search space. Notably, not only is this strategy easy to implement, it
-often performs comparably better than grid search.
+often performs comparably better than grid search $[3]$.
 
 \section{Motivating Application}
 Machine learning algorithms are widely used in academia and industry in learning
@@ -89,6 +89,8 @@ it is stochastic in nature and termination conditions (maximum iterations or thr
 has to be specified. Therefore the trade-off between model performance and time needed
 for tuning is arbitrarily determined.
 
+However, random search performs poorly when tuning algorithms with numerous hyperparameters for planning and scheduling$[1]$. Consider the case of constructing the optimal finacial asset portfolio using IBM ILOG CPLEX given the investment guidelines. Since the solver has 76 free hyperparameters$[2]$, it is impractical to tune it by hand and using random grid search is inefficient.
+
 In light of the abovementioned problems with conventional strategies, it would be ideal
 to have an algorithm that allow us to mathemathically formuate the exploit and explore
 trade-off in hyperparameter optimization to train the machine learning model the least
@@ -97,13 +99,12 @@ most information (the concept of "infomation", known as criterion will have to b
 as seen later). This can enable the model to reach the near optimum with as little trials as possible.
 It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation.
 
-Bayesian optimisation involves the use of a surrogate function (or response surface)
-which approximates the objective. For a certain number of iterations, or until
+Bayesian optimisation requires two key components one of which is the use of a surrogate model (or response surface) containing our prior belief of the unknown function to approximate the objective. The second component is the minimization of the loss function to determine the most suitable location to query. For a certain number of iterations, or until
 convergence, we pick, according to a heuristic or function, henceforth known as the
-acquisition function, the next best point to be evaluated by the objective. The
-surrogate function is updated in this process to reflect our new belief.
+acquisition function, the next best point to be evaluated by the objective to minimize the regret. The
+surrogate model is updated in this process to reflect our new belief. 
 
-In particular, the Gaussian Process model is used as the surrogate function
+In particular, the Gaussian Process model is used as the surrogate model
 for the objective function, which in this case, is the machine learning algorithm.
 The Gaussian Process model, being a distribution over functions, is especially apt
 to model this unknown, non-convex, and complex objective function. The
@@ -267,6 +268,9 @@ the model underfitting the data.
 \section{Improvements}
 
 \section{References}
+$[1]$https://arxiv.org/pdf/1206.2944.pdf  
+$[2]$https://www.cs.ox.ac.uk/people/nando.defreitas/publications/BayesOptLoop.pdf  
+$[3]$ http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf
 
 \section{Roles and Contributions}
 
