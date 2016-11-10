@@ -38,17 +38,17 @@ Machine learning algorithms have grown in popularity over the past few years.
 This increased interest and usage also implies an increasing need for
 hyperparameter tuning. Traditionally done by human experts, the process is
 nonetheless a black art in itself. Experts often use heuristics to guide their
-tuning efforts. This is not invulnerable to cognitive biases. Moreover, humans
+tuning efforts. This is susceptible to cognitive biases. Moreover, humans
 are unlikely to find a result close to the optimum, especially if there are
-numerous hyperparameters and when hyperparameters are correlated in some way
-not easily inferred. In this paper, we explore the use of Gaussian Processes to
+numerous hyperparameters and when hyperparameters are correlated in ways that are
+not easily inferred. In this paper, we explore the use of Gaussian processes to
 automate this problem through the use of Bayesian Optimisation.
 \end{abstract}
 
 \section{Introduction}
 \noindent Machine learning algorithms often involves careful tuning of hyperparameters.
 As an example, the hyperparameters of a neural network include the learning rate,
-batch size and number of hidden units. Given the black-box nature of this algorithm,
+batch size and number of hidden units. Given the black box nature of this algorithm,
 there is no definite and explicit method to select the optimal hyperparameters.
 Not only is the performance of such algorithms particularly sensitive to the
 parameters involved, this process of hyperparameter optimisation is traditionally
@@ -68,12 +68,12 @@ within the search space. Notably, not only is this strategy easy to implement, i
 often performs comparably better than grid search $[3]$.
 
 \section{Motivating Application}
-Machine learning algorithms are widely used in academia and industry in learning
+Machine learning algorithms are widely used in academia and the industry in learning
 problems such as classification and regression. Automating hyperparameter optimisation
 can better improve the performance of these algorithms, which can indirectly lead
 to greater scientific or industrial advances and innovations.
 
-The current tuning strategies outlined above have their limitations. Grid search essentially
+The tuning strategies outlined above have their limitations. Grid search essentially
 conducts an exhaustive search in the parameter space. Computationally, this is expensive
 when the parameter space is continuous and has a large domain size. This problem
 is usually mitigated by increasing the search step interval
@@ -84,55 +84,55 @@ $\gamma=\{2^{-15},2^{-13},...,2^{2}\}$. A more economical approach could be to s
 $\textit{C}$ exponentially in base 10 for a coarser search
 ($\textit{C}=\{10^{-5},10^{-3},...,10^{15}\}$) and searching over a smaller domain
 exponentially in base 2 for $\gamma$ ($\gamma=\{2^{-6},2^{-4},...,2^{2}\}$). On the other hand, while random
-search is more effective than grid search especially in high-dimensionsal spaces,
+search is more effective than grid search especially in high-dimensional spaces,
 it is stochastic in nature and termination conditions (maximum iterations or threshold change)
-have to be specified. Therefore the trade-off between model performance and time needed
+have to be specified. Therefore the tradeoff between model performance and time needed
 for tuning is arbitrarily determined.
 
-However, random search performs poorly when tuning algorithms with numerous hyperparameters for planning and scheduling$[1]$. Consider the case of constructing the optimal finacial asset portfolio using IBM ILOG CPLEX given the investment guidelines. Since the solver has 76 free hyperparameters$[2]$, it is impractical to tune it by hand and using random grid search is inefficient.
+However, random search performs poorly when tuning algorithms with numerous hyperparameters for planning and scheduling$[1]$. Consider the case of constructing the optimal financial asset portfolio using IBM ILOG CPLEX given the investment guidelines. Since the solver has 76 free hyperparameters$[2]$, it is impractical to tune it by hand and using random grid search is inefficient.
 
-In light of the abovementioned problems with conventional strategies, it would be ideal
-to have an algorithm that allow us to mathemathically formuate the exploit and explore
-trade-off in hyperparameter optimization to train the machine learning model the least
+In light of the above-mentioned problems with conventional strategies, it would be ideal
+to have an algorithm that allow us to mathematically formulate the exploit and explore
+tradeoffs in hyperparameter optimization to train the machine learning model the least
 amount of times on parameters that, on each training evaluation instance, acquire the
-most information (the concept of "infomation", known as criterion will have to be defined,
-as seen later). This can enable the model to reach the near optimum with as little trials as possible.
-It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation(BO).
+most information (the concept of "information", known as criterion will have to be defined,
+as seen later). This can enable the model to reach near optimum with as few trials as possible.
+It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation.
 
 Bayesian optimisation involves the use of a surrogate model (or response surface)$[5]$
 which approximates the objective. For a certain number of iterations, or until
 convergence, we pick, according to a heuristic or function, henceforth known as the
 acquisition function, the next best point to be evaluated by the objective. The
-surrogate model is updated in this process to reflect our new belief. 
+surrogate model is updated in this process to reflect our new belief.
 
-In particular, the Gaussian Process(GP) model is used as the surrogate model
+In particular, the Gaussian process model is used as the surrogate model
 for the objective function, which in this case, is the machine learning algorithm.
-The Gaussian Process model, being a distribution over functions, is especially apt
+The Gaussian process model, being a distribution over functions, is especially apt
 to model this unknown, non-convex, and complex objective function. The
-initial Gaussian Process model prescribes a prior over the objective, which is
+initial Gaussian process model prescribes a prior over the objective, which is
 subsequently updated with new data that is observed.
 Thus, producing a full predictive distribution at each search point instead of a single prediction.
- 
-Therefore GP is suitable as a prior for BO compared to other models such as bayesian neural networks$[6]$ is due to the following reasons: (i)We can obtain the predictive distribution of the model easily, (ii) a probablistic treatment of the hyperparameters allows us to discover general properties of the surface such as the smoothness from past samples and (iii) provides a feasible criterion to obtain the next sample from the model easily. Lastly, since evaluating the objective function is expensive, GP model can work well with having few samples unlike other powerful models which require large number of samples.  
+
+Therefore the Gaussian process model is suitable as a prior for Bayesian optimisation compared to other models such as Bayesian neural networks$[6]$ since: (i) We can obtain the predictive distribution of the model easily, (ii) a probabilistic treatment of the hyperparameters allows us to discover general properties of the surface such as the smoothness from past samples and (iii) provides a feasible criterion to obtain the next sample from the model easily. Lastly, since evaluating the objective function is expensive, Gaussian process model can work well with having few samples unlike other powerful models which require large number of samples.
 
 This differentiates the strategy of Bayesian optimisation from other tuning
 strategies mentioned previously. Instead of discarding information about new points
 that we have queried the objective for, Bayesian optimisation cleverly exploits this
 knowledge by updating the prior. As a result, this can provide improvements in time
 efficiency over naive algorithms such as grid search, whereby the computational
-cost scales exponentially with the number of parameters.  This is particulary
+cost scales exponentially with the number of parameters. This is particularly
 important in our application where the search space is usually high-dimensional
-and extremely large. Since the Gaussian Process model provides predictive uncertainty
+and extremely large. Since the Gaussian process model provides predictive uncertainty
 in the posterior, we can exploit this in the acquisition function, which essentially
 computes the utility of candidate points and is optimised to obtain the next point
 to be evaluated.
 
-Inherent in this process is this trade-off between exploration and exploitation.
+Inherent in this process is this tradeoff between exploration and exploitation.
 Clearly, one could simply greedily select the next point with the highest predictive
 mean, or a point which gives the highest probability of improvement. However, one
 is also likely to fall into local minima or maxima in this case. Without exploration
 in areas of high uncertainty, it is not guaranteed that the global optimum can be
-found. This trade-off is usually manifest in the acquisition function. In fact,
+found. This tradeoff is usually manifest in the acquisition function. In fact,
 we will explore various Bayesian optimisation criteria and conduct experiments to
 evaluate their performance in our application.
 
@@ -160,55 +160,55 @@ as explain the models and algorithms used.
 In hyperparameter tuning, we consider the problem of finding the global maximum of
 an unknown function $f$:
 $$\textbf{x*}=\argmax_{\textbf{x}\in\mathcal{X}}{f(x)}$$
-where $\textbf{x} \in \mathbb{R^d}$ and $\mathcal{X}$ is a bounded subset of 
-$\mathbb{R}^d$. In general, the process works as follows: the Gaussian Process model
+where $\textbf{x} \in \mathbb{R^d}$ and $\mathcal{X}$ is a bounded subset of
+$\mathbb{R}^d$. In general, the process works as follows: the Gaussian process model
 is initialised with a number of observations and acts as a prior.
 An acquisition function, $\alpha(\textbf{x})$, then makes use
 of the posterior, in particular, the predictive mean and uncertainty,
 to compute the utility of a point. A necessary condition is that the computation and
 optimisation of this acquisition function is much less costly than the objective.
 Optimisation of $\alpha$ gives us the next point to evaluate, $\textbf{x}'$. The
-objective function is evaluated at $\textbf{x}'$. Subsequently, the Gaussian Process 
+objective function is evaluated at $\textbf{x}'$. Subsequently, the Gaussian process
 model is updated with the new data point, $(\textbf{x}', y(\textbf{x}'))$, and the
 process is repeated until we hit the budget of evaluations allowed, or till
 convergence.
 
 \subsection{Model Definition}
-In this paper, we assume that the performance measures for hyperparameters follow a 
-Gaussian distribution. As mentioned, we model the unknown objective as a Gaussian Process.
-Given that we have already evaluated the following set of hyperparameters, 
-$\mathcal{D}=\{\textbf{x}_1, \cdots, \textbf{x}_n\}$, the Gaussian 
+In this paper, we assume that the performance measures for hyperparameters follow a
+Gaussian distribution. As mentioned, we model the unknown objective as a Gaussian process.
+Given that we have already evaluated the following set of hyperparameters,
+$\mathcal{D}=\{\textbf{x}_1, \cdots, \textbf{x}_n\}$, the Gaussian
 Process model predicts the performance measure of the next set of hyperparameters,
 $\textbf{x}'$.
 
 In the context of hyperparameter tuning, the time taken to evaluate the objective is
 also an important consideration. Consequently, we also have a cost model where
-another Gaussian Process model is used to predict the execution time for a particular
+another Gaussian process model is used to predict the execution time for a particular
 set of hyperparameters. In this way, we can select points which are not only
-predicted to have a high accuracy in the underlying machine learning model, they
+predicted to have a high accuracy in the underlying machine learning model; they
 are also likely to be fast to evaluate. Our experiments thus employ
 a cost-sensitive model that varies in the type of acquisition function used.
 
 \subsection{Cost-sensitive Modeling}
-While it is important to find a good set of hyperparameters in the least number of 
-trials, we should keep in mind that the execution time for different regions of the 
-parameter space can vary significantly. In the situation of limited budget, such as 
-time or money, the cost-sensitive model can select the next point based on expected 
-improvement per second. In this cost-sensitive model, dividing the expected improvement 
-of each point by its cost allows this acquisition function to select points that 
+While it is important to find a good set of hyperparameters in the fewest number of
+trials, we should keep in mind that the execution time for different regions of the
+parameter space can vary significantly. In a situation with limited budget, such as
+time or money, the cost-sensitive model can select the next point based on expected
+improvement per second. In this cost-sensitive model, dividing the expected improvement
+of each point by its cost allows this acquisition function to select points that
 balance between good performance and cheap evaluation cost.
 
 \subsection{Acquisition Functions}
-One of the key challenges in Bayesian optimisation is that of balancing the trade-off
+One of the key challenges in Bayesian optimisation is balancing the tradeoff
 between exploration and exploitation. This issue surfaces in the acquisition function,
 where one has to select the next point to be explored. A purely exploitative function
 will choose points with a high predictive mean. In contrast, a purely exploratory
 function will choose points with a high predictive uncertainty.
 
-We gathered a few interesting insights from our research. 
+We gathered a few interesting insights from our research.
 Firstly, the problem of selecting the next point can be viewed as a infinite-armed
 bandit problem \cite{hoffman2011portfolio}, which implies some relationship to
-reinforcement learning, where, similarly, we receive evaluative and not instructive
+reinforcement learning, where similarly, we receive evaluative and not instructive
 feedback. As such, it is interesting to consider the possibility of modelling the
 acquisition function with Q-learning in mind. The off-policy nature of the latter is
 a truly remarkable quality, which would certainly be valuable in the setting of not
@@ -217,8 +217,8 @@ just hyperparameter tuning, but also Bayesian optimisation in general.
 Additionally, it is interesting to note that most of the traditional acquisition
 functions focus largely on the minimisation of cumulative regret:
 $$\sum_{i=1}^{n} f(\textbf{x}*) - f(\textbf{x}')$$
-This includes acquisition functions such as GP-UCB. However, more recent 
-information-based approaches such as Entropy Search \cite{hennig2012entropy} and 
+This includes acquisition functions such as GP-UCB. However, more recent
+information-based approaches such as Entropy Search \cite{hennig2012entropy} and
 Predictive Entropy Search approach the problem with an intriguing perspective.
 Particularly in the context of hyperparameter tuning, we are often given a budget,
 such as the number of function evaluations allowed. This implies some time sensitivity
@@ -233,7 +233,7 @@ in that only our final posterior and the predicted optimum matters. Evaluations
 before the end of our finite time budget need not necessarily be high-performing.
 
 \subsection{Covariance Functions}
-The GP function is mainly characterized by its covariance function after normalizing the data to attain a mean of 0. The covariance function produces a covariance matrix which is utilised by the Gaussian process model for inference.
+The Gaussian process is mainly characterized by its covariance function after normalizing the data to attain a mean of 0. The covariance function produces a covariance matrix which is utilised by the Gaussian process model for inference.
 In our paper, we use the Matern 5/2 kernel with Automatic Relevance Determination (ARD).
 
 \begin{align*}
@@ -245,7 +245,7 @@ The Matern 5/2 kernel is commonly used in the areas of machine learning and mult
 \section{Experimental Setup}
 
 \subsection{Experiment 1: Convolutional Neural Network}
-Such artifical neural networks require the tuning of a multitude of hyperparameters. In our experiments, we tune six hyperparameters of a simple convolutional neural network which has 1 convolution layer, 1 pooling layer and 2 fully connected layers.
+Such artificial neural networks require the tuning of a multitude of hyperparameters. In our experiments, we tune six hyperparameters of a simple convolutional neural network which has 1 convolution layer, 1 pooling layer and 2 fully connected layers.
 
 \subsubsection{Dataset}
 We used the Labeled Faces in the Wild face recognition dataset that has been used by many research institutions, including Google and Facebook. Google reportedly reached an accuracy of 99.63\%.
@@ -268,9 +268,9 @@ The following are the six hyperparameters that we are tuning.
 
 \subsection{Experiment 2: Support Vector Machine}
 SVMs are supervised learning models that construct a hyperplane or set of hyperplanes in high-
-or indefinite- dimensional space to divide the labelled data for classification and regression.
+or indefinite-dimensional space to divide the labelled data for classification and regression.
 The data points which are considered in drawing the separating hyperplane is called a support
-vector In reality, not all data are separable by a hyperplane due to noise or outliers, hence in
+vector. In reality, not all data are separable by a hyperplane due to noise or outliers. Hence in
 practice, a soft-margin classification is deployed to allow hyperplanes to be constructed
 with a decision margin to make a few mistakes to generalize the data better.
 
@@ -307,16 +307,16 @@ the model underfitting the data.
 
 \section{References}
 % Consider using BibTeX
-$[1]$https://arxiv.org/pdf/1206.2944.pdf  
-$[2]$https://www.cs.ox.ac.uk/people/nando.defreitas/publications/BayesOptLoop.pdf  
-$[3]$http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf  
-$[4]$\text{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.139.9315\&rep=rep1\&type=pdf}  
+$[1]$https://arxiv.org/pdf/1206.2944.pdf
+$[2]$https://www.cs.ox.ac.uk/people/nando.defreitas/publications/BayesOptLoop.pdf
+$[3]$http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf
+$[4]$\text{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.139.9315\&rep=rep1\&type=pdf}
 $[5]$\text{https://arxiv.org/pdf/1012.2599v1.pdf}
 $[6]$https://arxiv.org/pdf/1502.05700v2.pdf
- 
+
 
 \section{Roles and Contributions}
-
+% Names here do not match the top.
 \begin{description}
 \item [Cheong Xuan Hao Filbert]
 \item [Gay Ming Jian Davis]
