@@ -97,19 +97,22 @@ trade-off in hyperparameter optimization to train the machine learning model the
 amount of times on parameters that, on each training evaluation instance, acquire the
 most information (the concept of "infomation", known as criterion will have to be defined,
 as seen later). This can enable the model to reach the near optimum with as little trials as possible.
-It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation.
+It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation(BO).
 
-Bayesian optimisation requires two key components one of which is the use of a surrogate model (or response surface) containing our prior belief of the unknown function to approximate the objective. The second component is the minimization of the loss function to determine the most suitable location to query. For a certain number of iterations, or until
+Bayesian optimisation requires two key components one of which is the use of a surrogate model (or response surface)$[5]$ containing our prior belief of the unknown function to approximate the objective.Secondly, for a certain number of iterations, or until
 convergence, we pick, according to a heuristic or function, henceforth known as the
-acquisition function, the next best point to be evaluated by the objective to minimize the regret. The
+acquisition function, the next best point to be evaluated by the objective. The
 surrogate model is updated in this process to reflect our new belief. 
 
-In particular, the Gaussian Process model is used as the surrogate model
+In particular, the Gaussian Process(GP) model is used as the surrogate model
 for the objective function, which in this case, is the machine learning algorithm.
 The Gaussian Process model, being a distribution over functions, is especially apt
 to model this unknown, non-convex, and complex objective function. The
 initial Gaussian Process model prescribes a prior over the objective, which is
 subsequently updated with new data that is observed.
+Thus, producing a full predictive distribution at each search point instead of a single prediction.
+ 
+Therefore GP is suitable as a prior for BO compared to other models such as bayesian neural networks$[6]$ is due to the following reasons: (i)We can obtain the predictive distribution of the model easily, (ii) a probablistic treatment of the hyperparameters allows us to discover general properties of the surface such as the smoothness from past samples and (iii) provides a feasible criterion to obtain the next sample from the model easily. Lastly, since evaluating the objective function is expensive, GP model can work well with having few samples unlike other powerful models which require large number of samples.  
 
 This differentiates the strategy of Bayesian optimisation from other tuning
 strategies mentioned previously. Instead of discarding information about new points
@@ -210,23 +213,33 @@ The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and mul
 \section{Experimental Setup}
 
 \subsection{Convolutional Neural Network}
-Such artificial neural networks require the tuning of a multitude of hyperparameters. In our experiments, we tune six hyperparameters of a simple convolutional neural network which has 1 convolution layer, 1 pooling layer and 2 fully connected layers.
+he tuning of a multitude of hyperparameters. In our experiments, we tune six hyperparameters of a simple convolutional neural network which has 1 convolution layer, 1 pooling layer and 2 fully connected layers.
 
 \subsubsection{Dataset}
-We used the Labeled Faces in the Wild face recognition dataset that has been used by many research institutions, including Google and Facebook. Google reportedly reached an accuracy of 99.63\%.
+es in the Wild face recognition dataset that has been used by many research institutions, including Google and Facebook. Google reportedly reached an accuracy of 99.63\%.
 
 This dataset contains pictures of famous people collected over the Internet, with each image having one face. We decided to focus on a subset which contains faces of people who have at least 70 images in the dataset. The problem then becomes a 7-class classification task.
 
 \subsubsection{Hyperparameters}
-The following are the six hyperparameters that we are tuning.
+parameters that we are tuning.
+
 \begin{enumerate}
+
     \item Optimizer learning rate
+
     \item Dropout rate (prevent overfitting)
+
     \item Number of epochs
+
     \item Number of features (for the convolution layer)
+
     \item Size of features (dimensions of each feature)
+
     \item Size of pooling layer (dimensions of each filter in the pooling layer)
+
 \end{enumerate}
+
+
 
 \subsection{Procedure}
 
@@ -270,7 +283,11 @@ the model underfitting the data.
 \section{References}
 $[1]$https://arxiv.org/pdf/1206.2944.pdf  
 $[2]$https://www.cs.ox.ac.uk/people/nando.defreitas/publications/BayesOptLoop.pdf  
-$[3]$ http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf
+$[3]$http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf  
+$[4]$\text{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.139.9315\&rep=rep1\&type=pdf}  
+$[5]$\text{https://arxiv.org/pdf/1012.2599v1.pdf}
+$[6]$https://arxiv.org/pdf/1502.05700v2.pdf
+ 
 
 \section{Roles and Contributions}
 
