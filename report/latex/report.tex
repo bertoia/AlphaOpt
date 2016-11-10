@@ -244,7 +244,7 @@ The Matern 5/2 kernel is commonly used in the areas of machine learning and mult
 
 \section{Experimental Setup}
 
-\subsection{Convolutional Neural Network}
+\subsection{Experiment 1: Convolutional Neural Network}
 Such artifical neural networks require the tuning of a multitude of hyperparameters. In our experiments, we tune six hyperparameters of a simple convolutional neural network which has 1 convolution layer, 1 pooling layer and 2 fully connected layers.
 
 \subsubsection{Dataset}
@@ -258,26 +258,15 @@ The following are the six hyperparameters that we are tuning.
 \begin{enumerate}
 
     \item Optimizer learning rate
-
     \item Dropout rate (prevent overfitting)
-
     \item Number of epochs
-
     \item Number of features (for the convolution layer)
-
     \item Size of features (dimensions of each feature)
-
     \item Size of pooling layer (dimensions of each filter in the pooling layer)
 
 \end{enumerate}
 
-
-
-\subsection{Procedure}
-
-\section{Experimental Evaluation}
-
-\subsection{Support Vector Machine}
+\subsection{Experiment 2: Support Vector Machine}
 SVMs are supervised learning models that construct a hyperplane or set of hyperplanes in high-
 or indefinite- dimensional space to divide the labelled data for classification and regression.
 The data points which are considered in drawing the separating hyperplane is called a support
@@ -293,8 +282,8 @@ of the decision surface.
 Additionally, a kernel can be supplied to map points in data to higher dimension. In our
 experiment, we used the RBF kernel.
 \begin{align*}
-  k (\textbf{x},\textbf{x}') &= \exp(-\gamma||(\textbf{x},\textbf{x}')||)^2 \\
-  &\text{where} \ \gamma = \frac{1}{2\sigma^2}
+k (\textbf{x},\textbf{x}') &= \exp(-\gamma||(\textbf{x},\textbf{x}')||)^2 \\
+&\text{where} \ \gamma = \frac{1}{2\sigma^2}
 \end{align*}
 The parameter $\gamma$ is the inverse of the radius of influence of samples selected by the
 model as support vectors. In other words, a smaller $\gamma$ leads to a more constraint
@@ -309,6 +298,10 @@ $\gamma$ and $\textit{C}$ to generalize the data well. Secondly, since SVM time 
 is dependent on the number of support vectors, there is a dilemma of choosing a lower value
 of $\textit{C}$ will favour models that use less memory and faster to predict at risk of
 the model underfitting the data.
+
+\subsection{Procedure}
+
+\section{Experimental Evaluation}
 
 \section{Improvements}
 
