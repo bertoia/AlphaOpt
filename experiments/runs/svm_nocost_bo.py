@@ -40,9 +40,12 @@ for name, dd in cases.items():
 # import experiments.experiment.save_result
 # save_result(cases)
 for name, dd in cases.items():
-    bo = dd["bo"]
-    print(name)
-    print('Value at minimum: ' + str(min(bo.Y)).strip('[]'))
-    print('Best found minimum location: ' + str(bo.X[np.argmin(bo.Y), :]).strip('[]'))
-    bo.plot_convergence(r"results\\" + name + file_midfix)
-    bo.plot_acquisition(r"results\\" + name + file_midfix + "acq")
+    try:
+        bo = dd["bo"]
+        print(name)
+        print('Value at minimum: ' + str(min(bo.Y)).strip('[]'))
+        print('Best found minimum location: ' + str(bo.X[np.argmin(bo.Y), :]).strip('[]'))
+        bo.plot_convergence(r"results\\" + name + file_midfix)
+        bo.plot_acquisition(r"results\\" + name + file_midfix + "acq")
+    except:
+        continue
