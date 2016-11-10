@@ -99,17 +99,9 @@ most information (the concept of "infomation", known as criterion will have to b
 as seen later). This can enable the model to reach the near optimum with as little trials as possible.
 It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation(BO).
 
-<<<<<<< HEAD
 Bayesian optimisation requires two key components one of which is the use of a surrogate model (or response surface)$[5]$ containing our prior belief of the unknown function to approximate the objective.Secondly, for a certain number of iterations, or until
 convergence, we pick, according to a heuristic or function, henceforth known as the
 acquisition function, the next best point to be evaluated by the objective. The
-=======
-Bayesian optimisation requires two key components, one of which is the use of a surrogate model (or response surface)
-which approximates the objective. The second component is the minimization of the loss function to determine the most suitable location to query.
-For a certain number of iterations, or until convergence, we pick, according to a heuristic or function,
-the next best point to be evaluated by the objective to minimize the regret.
-This secondary function will henceforth be referred to as the acquisition function. The
->>>>>>> cafa0acaad71de269cb2b74a5b0a0cf1932bd558
 surrogate model is updated in this process to reflect our new belief. 
 
 In particular, the Gaussian Process(GP) model is used as the surrogate model
