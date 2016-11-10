@@ -5,6 +5,7 @@ from keras.models import Sequential
 from keras.layers import Activation, Dense, Dropout, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.utils import np_utils
+from keras.optimizers import Adam
 from keras import backend as K
 
 K.set_image_dim_ordering('th')
@@ -39,6 +40,7 @@ y_test = np_utils.to_categorical(y_test_raw)
 
 # True Objective Model
 def baseline_model(dropout_rate=0.25,
+                   learning_rate=0.001,
                    num_features=32,
                    feature_size=5,
                    pool_size=(2, 2),
@@ -55,8 +57,9 @@ def baseline_model(dropout_rate=0.25,
     model.add(Dense(fully_connected_size, activation='relu'))
     model.add(Dense(num_classes, activation='softmax'))
 
+    optimizer = Adam(lr=learning_rate)
     model.compile(loss='categorical_crossentropy',
-                  optimizer='adam',
+                  optimizer=optimizer,
                   metrics=['accuracy'])
     return model
 
@@ -65,13 +68,14 @@ def baseline_model(dropout_rate=0.25,
 def cnn_accuracy(x, verbose=1, print_summary=True, print_accuracy=False):
     print(x)
     model = baseline_model(dropout_rate=float(x[0, 0]),
-                           num_features=int(x[0, 2]),
-                           feature_size=int(x[0, 3]),
-                           pool_size=(int(x[0, 4]), int(x[0, 4])))
+                           learning_rate=float(x[0, 1]),
+                           num_features=int(x[0, 3]),
+                           feature_size=int(x[0, 4]),
+                           pool_size=(int(x[0, 5]), int(x[0, 5])))
 
     model.fit(X_train, y_train,
               validation_data=(X_test, y_test),
-              nb_epoch=int(x[0, 1]),
+              nb_epoch=int(x[0, 2]),
               batch_size=50,
               verbose=verbose)
     if print_summary:
@@ -94,6 +98,7 @@ def cnn_accuracy_base(verbose, summary, accuracy):
 # Objection domain
 domain = [
     {'name': 'dropout_rate', 'type': 'continuous', 'domain': (0.01, 0.99)},
+    {'name': 'learning_rate', 'type': 'continuous', 'domain': (0.001, 0.01)},
     {'name': 'num_epoch', 'type': 'discrete', 'domain': range(10, 41, 10)},
     {'name': 'num_features', 'type': 'discrete', 'domain': range(10, 101, 10)},
     {'name': 'feature_size', 'type': 'discrete', 'domain': range(2, 6)},
