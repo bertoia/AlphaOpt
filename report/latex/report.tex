@@ -78,7 +78,7 @@ conducting an exhaustive search in the parameter space and thus potentially expe
 especially when the parameter space is continuous and has a large domain size. For
 grid search, this problem is usually mitigated by increasing search step interval
 or narrowing parameter space. For example, in tuning of Support Vector Machines
-(SVM) with RBF kernel, it is recommended that $\textit{C}$ and $\gamma$ are searched
+(SVM) with radial basis function (RBF) kernel, it is recommended that $\textit{C}$ and $\gamma$ are searched
 exponentially in base 2: $\textit{C}=\{2^{-5},2^{-3},...,2^{15}\}$ and
 $\gamma=\{2^{-15},2^{-13},...,2^{2}\}$. A more economical approach could be to search
 $\textit{C}$ exponentially in base 10 for a coarser search
@@ -122,12 +122,12 @@ in the posterior, we can exploit this in the acquisition function, which essenti
 computes the utility of candidate points and is optimised to obtain the next point
 to be evaluated.
 
-Inherent in this process is this tradeoff between exploration and exploitation.
+Inherent in this process is this trade-off between exploration and exploitation.
 Clearly, one could simply greedily select the next point with the highest predictive
 mean, or a point which gives the highest probability of improvement. However, one
 is also likely to fall into local minima or maxima in this case. Without exploration
 in areas of high uncertainty, it is not guaranteed that the global optimum can be
-found. This tradeoff is usually manifest in the acquisition function. In fact,
+found. This trade-off is usually manifest in the acquisition function. In fact,
 we will explore various Bayesian optimisation criteria and conduct experiments to
 evaluate their performance in our application.
 
@@ -211,6 +211,39 @@ The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and mul
 \subsection{Procedure}
 
 \section{Experimental Evaluation}
+
+\subsection{Support Vector Machine}
+SVMs are supervised learning models that construct a hyperplane or set of hyperplanes in high-
+or indefinite- dimensional space to divide the labelled data for classification and regression.
+The data points which are considered in drawing the separating hyperplane is called a support
+vector In reality, not all data are separable by a hyperplane due to noise or outliers, hence in
+practice, a soft-margin classification is deployed to allow hyperplanes to be constructed
+with a decision margin to make a few mistakes to generalize the data better.
+
+The parameter $\textit{C}$ in SVM is a regularization term which controls overfitting of the soft-margin.
+As $\textit{C}$ becomes large, it is more attractive to respect the data points and reduce
+the margin. When $\textit{C}$ is small, the SVM will trade misclassification for simplicity
+of the decision surface.
+
+Additionally, a kernel can be supplied to map points in data to higher dimension. In our
+experiment, we used the RBF kernel.
+\begin{align*}
+  k (\textbf{x},\textbf{x}') = \exp(-\gamma||(\textbf{x},\textbf{x}')||)^2 \\
+  where \gamma = \frac{1}{2\sigma^2}
+\end{align*}
+The parameter $\gamma$ is the inverse of the radius of influence of samples selected by the
+model as support vectors. In other words, a smaller $\gamma$ leads to a more constraint
+model where the hyperplanes "curves" less.
+
+If $\gamma$ is too large, the radius of the area of influence of the support vectors only
+includes the support vector itself and no amount of regularization with $\textit{C}$ will be
+able to prevent overfitting.
+
+Therefore the difficulty of tuning SVM with RBF kernel is to balance the value of
+$\gamma$ and $\textit{C}$ to generalize the data well. Secondly, since SVM time complexity
+is dependent on the number of support vectors, there is a dilemma of choosing a lower value
+of $\textit{C}$ will favour models that use less memory and faster to predict at risk of
+the model underfitting the data.
 
 \section{Improvements}
 
