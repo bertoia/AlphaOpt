@@ -208,6 +208,25 @@ The Mat'ern 5/2 kernel is commonly used in the areas of machine learning and mul
 
 \section{Experimental Setup}
 
+\subsection{Convolutional Neural Network}
+Such artificial neural networks require the tuning of a multitude of hyperparameters. In our experiments, we tune six hyperparameters of a simple convolutional neural network which has 1 convolution layer, 1 pooling layer and 2 fully connected layers.
+
+\subsubsection{Dataset}
+We used the Labeled Faces in the Wild face recognition dataset that has been used by many research institutions, including Google and Facebook. Google reportedly reached an accuracy of 99.63\%.
+
+This dataset contains pictures of famous people collected over the Internet, with each image having one face. We decided to focus on a subset which contains faces of people who have at least 70 images in the dataset. The problem then becomes a 7-class classification task.
+
+\subsubsection{Hyperparameters}
+The following are the six hyperparameters that we are tuning.
+\begin{enumerate}
+    \item Optimizer learning rate
+    \item Dropout rate (prevent overfitting)
+    \item Number of epochs
+    \item Number of features (for the convolution layer)
+    \item Size of features (dimensions of each feature)
+    \item Size of pooling layer (dimensions of each filter in the pooling layer)
+\end{enumerate}
+
 \subsection{Procedure}
 
 \section{Experimental Evaluation}
