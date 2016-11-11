@@ -232,6 +232,42 @@ true objective and hence, the optimum. It is different from the previous approac
 in that only our final posterior and the predicted optimum matters. Evaluations
 before the end of our finite time budget need not necessarily be high-performing.
 
+From our research, we investigated and experimented with 3 modifications to existing
+acquisition functions.
+
+\begin{description}
+	\item[Probability of Improvement] This criterion is given by the following
+	equation:
+	$$\text{PI}(\textbf{x}) = \Phi\left( 
+	\frac{\mu(\textbf{x})-T-\xi}{\sigma(\textbf{x})}\right)$$
+	where $T$ is a target, often specified as the best result seen so far.
+	In the context of hyperparameter tuning, the
+	target is often the accuracy of the underlying machine learning algorithm. Thus,
+	the threshold for $T$ is not unknown and can be set. We also adjust $\xi$ so
+	that the algorithm is more exploratory at the beginning and less so towards the
+	end of the horizon.
+	
+	\item[Exploration-Exploitation Cycle] Many traditional acquisition functions
+	attempt to balance the tradeoff between exploration and exploitation in one
+	equation. Instead, we ask: why not have both? In our experiments, we investigate
+	if cycling between both stages can help to balance this tradeoff. Similarly, we
+	also add in a parameter which determines the exploratory behavior of the algorithm.
+	It adjusts the cycling behavior to discourage exploration over time.
+	
+	\item[Maximum Entropy Sampling] As mentioned above, recent approaches have looked
+	at the problem through a different perspective. Moreover, we note the similarities
+	between active learning and Bayesian optimisation. In particular, both are
+	sequential decision processes which aim to maximise information gain for the
+	purpose of a specific goal. One applicable active learning criterion is the
+	entropy criterion:
+	$$\argmax_{\textbf{x}'\in \mathcal{U}}{\mathbb{H}[f'\mid y]}$$
+	This method of maximum entropy sampling essentially minimises the predictive
+	uncertainty at the remaining unobserved points. As a highly exploratory criterion,
+	we use this to induce global search behavior in our experiments with parallelising
+	Bayesian optimisation.
+\end{description}
+
+
 \subsection{Covariance Functions}
 The Gaussian process is mainly characterized by its covariance function after normalizing the data to attain a mean of 0. The covariance function produces a covariance matrix which is utilised by the Gaussian process model for inference.
 In our paper, we use the Matern 5/2 kernel with Automatic Relevance Determination (ARD).
