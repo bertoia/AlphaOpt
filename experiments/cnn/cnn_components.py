@@ -5,6 +5,7 @@ from keras.models import Sequential
 from keras.layers import Activation, Dense, Dropout, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.utils import np_utils
+from keras.optimizers import Adam
 from keras import backend as K
 
 from multiprocessing import Pool
@@ -43,6 +44,7 @@ y_test = np_utils.to_categorical(y_test_raw)
 
 # True Objective Model
 def baseline_model(dropout_rate=0.25,
+                   learning_rate=0.001,
                    num_features=32,
                    feature_size=5,
                    pool_size=(2, 2),
@@ -59,8 +61,9 @@ def baseline_model(dropout_rate=0.25,
     model.add(Dense(fully_connected_size, activation='relu'))
     model.add(Dense(num_classes, activation='softmax'))
 
+    optimizer = Adam(lr=learning_rate)
     model.compile(loss='categorical_crossentropy',
-                  optimizer='adam',
+                  optimizer=optimizer,
                   metrics=['accuracy'])
     return model
 
@@ -79,9 +82,10 @@ def cnn_accuracy_model(x):
     print_accuracy = True
     print(x)
     model = baseline_model(dropout_rate=float(x[0, 0]),
-                           num_features=int(x[0, 2]),
-                           feature_size=int(x[0, 3]),
-                           pool_size=(int(x[0, 4]), int(x[0, 4])))
+                           learning_rate=float(x[0, 1]),
+                           num_features=int(x[0, 3]),
+                           feature_size=int(x[0, 4]),
+                           pool_size=(int(x[0, 5]), int(x[0, 5])))
 
     model.fit(X_train, y_train,
               validation_data=(X_test, y_test),
@@ -96,7 +100,6 @@ def cnn_accuracy_model(x):
         print()
 
     acc = 1 - model.evaluate(X_test, y_test)[1]
-    model.reset_states()
     return acc  # returns 1 - accuracy %
 
 def cnn_accuracy_binary(x, verbose=1, print_summary=True, print_accuracy=False):
@@ -133,7 +136,8 @@ def cnn_accuracy_base(verbose=0, summary=False, accuracy=True, binary=False):
 # Objection domain
 space = GPyOpt.Design_space(space=[
     {'name': 'dropout_rate', 'type': 'continuous', 'domain': (0.01, 0.99)},
-    {'name': 'num_epoch', 'type': 'discrete', 'domain': range(10, 41, 5)},
+    {'name': 'learning_rate', 'type': 'continuous', 'domain': (0.001, 0.1)},
+    {'name': 'num_epoch', 'type': 'discrete', 'domain': range(10, 41, 10)},
     {'name': 'num_features', 'type': 'discrete', 'domain': range(10, 101, 10)},
     {'name': 'feature_size', 'type': 'discrete', 'domain': range(2, 6)},
     {'name': 'pool_size', 'type': 'discrete', 'domain': range(1, 6)}]
