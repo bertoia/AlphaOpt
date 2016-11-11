@@ -92,11 +92,10 @@ for tuning is arbitrarily determined.
 However, random search performs poorly when tuning algorithms with numerous hyperparameters for planning and scheduling \cite{snoek2012practical}. Consider the case of constructing the optimal financial asset portfolio using IBM ILOG CPLEX given the investment guidelines. Since the solver has 76 free hyperparameters \cite{shahriari2016taking}, it is impractical to tune it by hand and using random grid search is inefficient.
 
 In light of the above-mentioned problems with conventional strategies, it would be ideal
-to have an algorithm that allow us to mathematically formulate the exploit and explore
-tradeoffs in hyperparameter optimization to train the machine learning model the least
-amount of times on parameters that, on each training evaluation instance, acquire the
-most information (the concept of "information", known as criterion will have to be defined,
-as seen later). This can enable the model to reach near optimum with as few trials as possible.
+to have an algorithm that allows us to efficiently train the machine learning model
+through the use of parameters that, on each training evaluation, return us the
+most information. By making use of new information discovered, this can enable the
+model to reach near optimum with as few trials as possible.
 It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation.
 
 Bayesian optimisation involves the use of a surrogate model (or response surface)
@@ -109,32 +108,28 @@ surrogate model is updated in this process to reflect our new belief.
 In particular, the Gaussian process model is used as the surrogate model
 for the objective function, which in this case, is the machine learning algorithm.
 The Gaussian process model, being a distribution over functions, is especially apt
-to model this unknown, non-convex, and complex objective function. The Gaussian
-process model is suitable as a prior for Bayesian optimisation compared to other
+to model this unknown, non-convex, and complex objective function. It is also
+suitable as a prior for Bayesian optimisation compared to other
 models such as Bayesian neural networks \cite{snoek2015scalable} since we can: (i) obtain the 
-redictive distribution of the model easily, (ii) apply a probabilistic treatment of the
-hyperparameters to discover general properties of the surface such as its
-smoothness, through the use of past samples (iii) and make use of its predictive
+predictive distribution of the model easily, (ii) apply a probabilistic treatment of the
+hyperparameters to discover general properties of the surface (such as its
+smoothness) through the use of past samples (iii) and make use of its predictive
 uncertainty to evaluate potential candidates for the next point to be sampled.
-Lastly, since evaluating the objective function is expensive, the Gaussian process
-model can work well with few samples unlike other models which require a large
-number of samples.
+Lastly, the Gaussian process model can work well with few samples unlike other
+models which require a large number of samples.
 
-The initial Gaussian process model prescribes a prior over the objective, which is
-subsequently updated with new data that is observed. This differentiates the
-strategy of Bayesian optimisation from other tuning strategies mentioned previously.
+As the Gaussian Process model is subsequently updated with new data that is observed,
+this differentiates the strategy of Bayesian optimisation from other tuning
+strategies mentioned previously.
 Instead of discarding information about new points that we have queried the
 objective for, Bayesian optimisation cleverly exploits this
 knowledge by updating the prior. As a result, this can provide improvements in time
 efficiency over naive algorithms such as grid search, whereby the computational
 cost scales exponentially with the number of parameters. This is particularly
 important in our application where the search space is usually high-dimensional
-and extremely large. Since the Gaussian process model provides predictive uncertainty
-in the posterior, we can exploit this in the acquisition function, which essentially
-computes the utility of candidate points and is optimised to obtain the next point
-to be evaluated.
+and extremely large.
 
-Inherent in this process is this tradeoff between exploration and exploitation.
+Inherent in this process is the tradeoff between exploration and exploitation.
 Clearly, one could simply greedily select the next point with the highest predictive
 mean, or a point which gives the highest probability of improvement. However, one
 is also likely to fall into local minima or maxima in this case. Without exploration
@@ -143,18 +138,17 @@ found. This tradeoff is usually manifest in the acquisition function. In fact,
 we will explore various Bayesian optimisation criteria and conduct experiments to
 evaluate their performance in our application.
 
-Finally, there are certain Bayesian optimisation algorithms that can satisfy the
-requirements of hyperparameter tuning. Firstly, the tuning process is often
-expensive. Evaluations of large models dealing with big data can be extremely
-costly. Moreover, it is innately useful and beneficial if we can utilise
-Bayesian optimisation to improve this search for the optimum. In other contexts,
+Finally, there are some important requirements of hyperparameter tuning that are satisfied
+by Bayesian optimisation. Firstly, the tuning process is often expensive.
+Evaluations of large models dealing with big data can be extremely costly.
+Moreover, it is innately useful and beneficial to automate this search for the
+optimum, since it saves the amount of human effort needed. In other contexts,
 one may be limited by time or computing resources. Consequently, minimising the
-number of function evaluations to obtain a near-optimal result is clearly a concern.
+number of function evaluations to obtain a near-optimal result is important.
 Conversely, one may have access to parallel computing resources. In this aspect,
 Bayesian optimisation is flexible in that both sequential and parallel algorithms
-are available. In particular, non-myopic and parallel Bayesian optimisation
-algorithms can effectively reduce the number of objective function evaluations
-as well as the time needed to optimise the objective.
+are available. In particular, parallel Bayesian optimisation
+algorithms can effectively reduce the time needed to optimise the objective.
 
 \section{Technical Approach}
 % Describe clearly and CONCISELY the technical details of the active learning or Bayesian optimization algorithm that you are using.
@@ -181,15 +175,15 @@ process is repeated until we hit the budget of evaluations allowed, or till
 convergence.
 
 \subsection{Model Definition}
-In this paper, we assume that the performance measures for hyperparameters follow a
-Gaussian distribution. As mentioned, we model the unknown objective as a Gaussian process.
-Given that we have already evaluated the following set of hyperparameters,
+We assume that the performance measures for hyperparameters follow a
+Gaussian distribution. As mentioned, we model the unknown objective with a Gaussian process.
+Given that we have already evaluated the following sets of hyperparameters,
 $\mathcal{D}=\{\textbf{x}_1, \cdots, \textbf{x}_n\}$, the Gaussian
-Process model predicts the performance measure of the next set of hyperparameters,
+Process model is used to predict the performance measure of the next set of hyperparameters,
 $\textbf{x}'$.
 
-In the context of hyperparameter tuning, the time taken to evaluate the objective is
-also an important consideration. Consequently, we also have a cost model where
+In hyperparameter tuning, the time taken to evaluate the objective is
+an important consideration. Consequently, we also have a cost model where
 another Gaussian process model is used to predict the execution time for a particular
 set of hyperparameters. In this way, we can select points which are not only
 predicted to have a high accuracy in the underlying machine learning model; they
@@ -199,11 +193,10 @@ a cost-sensitive model that varies in the type of acquisition function used.
 \subsection{Cost-sensitive Modeling}
 While it is important to find a good set of hyperparameters in the fewest number of
 trials, we should keep in mind that the execution time for different regions of the
-parameter space can vary significantly. In a situation with limited budget, such as
-time or money, the cost-sensitive model can select the next point based on expected
-improvement per second. In this cost-sensitive model, dividing the expected improvement
-of each point by its cost allows this acquisition function to select points that
-balance between good performance and cheap evaluation cost.
+parameter space can vary significantly. In a situation with a limited time budget,
+the cost-sensitive model can select the next point based on expected
+improvement per second. We therefore consider the expected improvement per unit cost
+to select points that account for good performance and cheap evaluation cost.
 
 \subsection{Acquisition Functions}
 One of the key challenges in Bayesian optimisation is balancing the tradeoff
@@ -221,13 +214,14 @@ acquisition function with Q-learning in mind. The off-policy nature of the latte
 a truly remarkable quality, which would certainly be valuable in the setting of not
 just hyperparameter tuning, but also Bayesian optimisation in general.
 
-Additionally, it is interesting to note that most of the traditional acquisition
-functions focus largely on the minimisation of cumulative regret:
+Additionally, most of the traditional acquisition functions focus largely on the
+minimisation of cumulative regret:
 $$\sum_{i=1}^{n} f(\textbf{x}*) - f(\textbf{x}')$$
-This includes acquisition functions such as GP-UCB. However, more recent
-information-based approaches such as Entropy Search \cite{hennig2012entropy} and
-Predictive Entropy Search \cite{hernandez2014predictive} approach the problem with an intriguing perspective.
-Particularly in the context of hyperparameter tuning, we are often given a budget,
+This includes acquisition functions such as GP-UCB. However, it is interesting
+to note that more recent information-based approaches such as Entropy Search
+\cite{hennig2012entropy} and Predictive Entropy Search \cite{hernandez2014predictive}
+approach the problem with a different perspective.
+Particularly, in hyperparameter tuning, we are often given a budget,
 such as the number of function evaluations allowed. This implies some time sensitivity
 and a finite horizon for the optimiser. Thus, any regret-bounds proven in the limit
 are not especially useful in this context. In fact, one might argue that, if the
@@ -238,6 +232,7 @@ This information gain essentially clears the fog and gives us a better view of t
 true objective and hence, the optimum. It is different from the previous approaches
 in that only our final posterior and the predicted optimum matters. Evaluations
 before the end of our finite time budget need not necessarily be high-performing.
+In fact, this can be seen as a kind of "off-policy" learning.
 
 From our research, we investigated and experimented with 3 modifications to existing
 acquisition functions.
@@ -248,9 +243,10 @@ acquisition functions.
 	$$\text{PI}(\textbf{x}) = \Phi\left( 
 	\frac{\mu(\textbf{x})-T-\xi}{\sigma(\textbf{x})}\right)$$
 	where $T$ is a target, often specified as the best result seen so far.
-	In the context of hyperparameter tuning, the
-	target is often the accuracy of the underlying machine learning algorithm. Thus,
-	the threshold for $T$ is not unknown and can be set. We also adjust $\xi$ so
+	It is claimed that this criterion performs well when the target is known.
+	\cite{shahriari2016taking} In hyperparameter tuning, the target is often the 
+	accuracy of the underlying machine learning algorithm.
+	Thus, $T$ is known. We also adjust $\xi$ so
 	that the algorithm is more exploratory at the beginning and less so towards the
 	end of the horizon.
 	
