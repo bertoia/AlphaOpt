@@ -65,7 +65,7 @@ that is, the set of values: $\Theta=\{0.0, 0.5, 1.0\}$. Then, the points that on
 would evaluate the algorithm at would be given by the cartesian product: $\Theta \times \Theta$.
 The second strategy simply involves the random selection of a number of points
 within the search space. Notably, not only is this strategy easy to implement, it
-often performs comparably better than grid search $[3]$.
+often performs comparably better than grid search \cite{bergstra2012random}.
 
 \section{Motivating Application}
 Machine learning algorithms are widely used in academia and the industry in learning
@@ -89,7 +89,7 @@ it is stochastic in nature and termination conditions (maximum iterations or thr
 have to be specified. Therefore the tradeoff between model performance and time needed
 for tuning is arbitrarily determined.
 
-However, random search performs poorly when tuning algorithms with numerous hyperparameters for planning and scheduling$[1]$. Consider the case of constructing the optimal financial asset portfolio using IBM ILOG CPLEX given the investment guidelines. Since the solver has 76 free hyperparameters$[2]$, it is impractical to tune it by hand and using random grid search is inefficient.
+However, random search performs poorly when tuning algorithms with numerous hyperparameters for planning and scheduling \cite{snoek2012practical}. Consider the case of constructing the optimal financial asset portfolio using IBM ILOG CPLEX given the investment guidelines. Since the solver has 76 free hyperparameters \cite{shahriari2016taking}, it is impractical to tune it by hand and using random grid search is inefficient.
 
 In light of the above-mentioned problems with conventional strategies, it would be ideal
 to have an algorithm that allow us to mathematically formulate the exploit and explore
@@ -99,7 +99,7 @@ most information (the concept of "information", known as criterion will have to 
 as seen later). This can enable the model to reach near optimum with as few trials as possible.
 It is with this motivation that we approach hyperparameter tuning through Bayesian optimisation.
 
-Bayesian optimisation involves the use of a surrogate model (or response surface)$[5]$
+Bayesian optimisation involves the use of a surrogate model (or response surface)\cite{brochu2010tutorial}
 which approximates the objective. For a certain number of iterations, or until
 convergence, we pick, according to a heuristic or function, henceforth known as the
 acquisition function, the next best point to be evaluated by the objective. The
@@ -110,7 +110,7 @@ for the objective function, which in this case, is the machine learning algorith
 The Gaussian process model, being a distribution over functions, is especially apt
 to model this unknown, non-convex, and complex objective function. The Gaussian
 process model is suitable as a prior for Bayesian optimisation compared to other
-models such as Bayesian neural networks$[6]$ since we can: (i) obtain the 
+models such as Bayesian neural networks \cite{snoek2015scalable} since we can: (i) obtain the 
 redictive distribution of the model easily, (ii) apply a probabilistic treatment of the
 hyperparameters to discover general properties of the surface such as its
 smoothness, through the use of past samples (iii) and make use of its predictive
@@ -225,7 +225,7 @@ functions focus largely on the minimisation of cumulative regret:
 $$\sum_{i=1}^{n} f(\textbf{x}*) - f(\textbf{x}')$$
 This includes acquisition functions such as GP-UCB. However, more recent
 information-based approaches such as Entropy Search \cite{hennig2012entropy} and
-Predictive Entropy Search approach the problem with an intriguing perspective.
+Predictive Entropy Search \cite{hernandez2014predictive} approach the problem with an intriguing perspective.
 Particularly in the context of hyperparameter tuning, we are often given a budget,
 such as the number of function evaluations allowed. This implies some time sensitivity
 and a finite horizon for the optimiser. Thus, any regret-bounds proven in the limit
@@ -354,18 +354,7 @@ the model underfitting the data.
 
 \section{Improvements}
 
-\section{References}
-% Consider using BibTeX
-$[1]$https://arxiv.org/pdf/1206.2944.pdf
-$[2]$https://www.cs.ox.ac.uk/people/nando.defreitas/publications/BayesOptLoop.pdf
-$[3]$http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf
-$[4]$\text{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.139.9315\&rep=rep1\&type=pdf}
-$[5]$\text{https://arxiv.org/pdf/1012.2599v1.pdf}
-$[6]$https://arxiv.org/pdf/1502.05700v2.pdf
-
-
 \section{Roles and Contributions}
-% Names here do not match the top.
 \begin{description}
 \item [Cheong Xuan Hao Filbert]
 \item [Gay Ming Jian Davis]
