@@ -89,7 +89,7 @@ def cnn_accuracy_model(x):
 
     model.fit(X_train, y_train,
               validation_data=(X_test, y_test),
-              nb_epoch=int(x[0, 1]),
+              nb_epoch=int(x[0, 2]),
               batch_size=50,
               verbose=verbose)
     if print_summary:
@@ -109,7 +109,7 @@ def cnn_accuracy_binary(x, verbose=1, print_summary=True, print_accuracy=False):
 
     model.fit(X_train, y_train,
               validation_data=(X_test, y_test),
-              nb_epoch=int(x[0, 1]),
+              nb_epoch=int(x[0, 2]),
               batch_size=50,
               verbose=verbose)
     if print_summary:
