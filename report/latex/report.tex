@@ -108,16 +108,22 @@ surrogate model is updated in this process to reflect our new belief.
 In particular, the Gaussian process model is used as the surrogate model
 for the objective function, which in this case, is the machine learning algorithm.
 The Gaussian process model, being a distribution over functions, is especially apt
-to model this unknown, non-convex, and complex objective function. The
-initial Gaussian process model prescribes a prior over the objective, which is
-subsequently updated with new data that is observed.
-Thus, producing a full predictive distribution at each search point instead of a single prediction.
+to model this unknown, non-convex, and complex objective function. The Gaussian
+process model is suitable as a prior for Bayesian optimisation compared to other
+models such as Bayesian neural networks$[6]$ since we can: (i) obtain the 
+redictive distribution of the model easily, (ii) apply a probabilistic treatment of the
+hyperparameters to discover general properties of the surface such as its
+smoothness, through the use of past samples (iii) and make use of its predictive
+uncertainty to evaluate potential candidates for the next point to be sampled.
+Lastly, since evaluating the objective function is expensive, the Gaussian process
+model can work well with few samples unlike other models which require a large
+number of samples.
 
-Therefore the Gaussian process model is suitable as a prior for Bayesian optimisation compared to other models such as Bayesian neural networks$[6]$ since: (i) We can obtain the predictive distribution of the model easily, (ii) a probabilistic treatment of the hyperparameters allows us to discover general properties of the surface such as the smoothness from past samples and (iii) provides a feasible criterion to obtain the next sample from the model easily. Lastly, since evaluating the objective function is expensive, Gaussian process model can work well with having few samples unlike other powerful models which require large number of samples.
-
-This differentiates the strategy of Bayesian optimisation from other tuning
-strategies mentioned previously. Instead of discarding information about new points
-that we have queried the objective for, Bayesian optimisation cleverly exploits this
+The initial Gaussian process model prescribes a prior over the objective, which is
+subsequently updated with new data that is observed. This differentiates the
+strategy of Bayesian optimisation from other tuning strategies mentioned previously.
+Instead of discarding information about new points that we have queried the
+objective for, Bayesian optimisation cleverly exploits this
 knowledge by updating the prior. As a result, this can provide improvements in time
 efficiency over naive algorithms such as grid search, whereby the computational
 cost scales exponentially with the number of parameters. This is particularly
