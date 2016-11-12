@@ -300,7 +300,7 @@ We validated the performance of the acquisition functions and cost-models using 
 Here is an overview of the components of our experimental setup:
 
 \begin{description}
-\item[Acquisition functions] The criterion that selects the next set of hyperparameter to evaluate on.
+\item[Acquisition functions] The criterion that selects the next set of hyperparameters to evaluate on.
 	\begin{description}
 	\item [$\bullet$ EI] Expected Improvement
 	\item [$\bullet$ PI] Probability of Improvement
@@ -334,8 +334,9 @@ network which has 1 convolution layer, 1 pooling layer and 2 fully connected lay
 
 \subsubsection{Dataset}
 We used the Labeled Faces in the Wild face recognition dataset that has been used
-by many research institutions, including Google and Facebook. Google reportedly 
-reached an accuracy of 99.63\%.
+by many research institutions, including Google \cite{schroff2015facenet} and 
+Facebook \cite{taigman2014deepface}. Google reportedly obtained a classification
+accuracy of 99.63\% \cite{schroff2015facenet}.
 
 This dataset contains pictures of famous people collected over the Internet, with 
 each image having one face. We decided to focus on a subset which contains faces 
@@ -432,7 +433,7 @@ The performance of the BO approaches are noticably better than random search on 
 \end{figure}
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{RAND_SVM_X_init2_NC_ITER40.png}
-	\caption{SVM with Ransom search on 40 iterations}
+	\caption{SVM with Random search on 40 iterations}
 \end{figure}
 \begin{figure}[h]
 \begin{center}
@@ -484,10 +485,11 @@ This is applicable for acquisition functions with an explore-exploit parameter s
 \begin{description}
 \item [Cheong Xuan Hao Filbert]
 \item [Gay Ming Jian Davis]
-\item [Karen Ang Mei Yi]
+\item [Karen Ang Mei Yi] Motivating application, Research on acquisition functions
+and parallelised Bayesian optimisation, Coding of acquisition functions for experiments and Report writing
 \item [Quek Chang Rong Sebastian]
 \item [Vincent Seng Boon Chin]
-\item [Xu Ruofan]
+\item [Xu Ruofan] Research on cost-sensitive modelling and Report writing
 \end{description}
 
 \bibliographystyle{aaai}
