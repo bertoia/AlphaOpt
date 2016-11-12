@@ -282,6 +282,35 @@ In our paper, we use the Matern 5/2 kernel with Automatic Relevance Determinatio
 The Matern 5/2 kernel is commonly used in the areas of machine learning and multivariate statistical analysis on metric spaces. Due to its stationary and isotropic nature, it is able to produce similar predictive output for two inputs that are $d$ units away from each other. $5/2$ is chosen for its ability to produce smooth and yet sensitive curves.
 
 \section{Experimental Setup}
+We validate the performance of the acquisition functions and cost-models using the python library. GPyOpt.
+Here are the various variations that we considered for the experiments:
+
+\begin{description}
+\item[Acquisition functions] The criterion that selects the next set of hyperparameter to evaluate on.
+	\begin{description}
+	\item [$\bullet$ Expected Improvement]
+	\item [$\bullet$ Probability of Improvement]
+	\item [$\bullet$ Expected Improvement with Explore-exploit cycle]
+	\end{description}
+\item[Cost models] The various ways we can account for evalution time.
+	\begin{description}
+	\item [$\bullet$ Standard cost model] The standard cost model divides the acquisition value at a point by the time it takes to evaluate the point.
+						       The expected time is modeled using a GP model with a RBF kernel.
+	\item [$\bullet$ No cost model]
+	\end{description}
+\item[Constraint] \leavevmode
+	\begin{description}
+	\item [$\bullet$ Number of evalutions] \leavevmode
+	\item [$\bullet$ Time budget] Used to show in performance when the evaluation cost is considered.
+	\end{description}
+\item[Benchmark] The various combination of acquisition function and cost model are tested against random sampling of the hyperparameter space.
+\item[Experiments] \leavevmode
+	\begin{description}
+	\item [$\bullet$ CNN] with the Labeled Faces in the Wild dataset
+	\item [$\bullet$ SVM] with the MNIST dataset
+	\end{description}
+\end{description}
+Next, we will describe the two experiments in detail.
 
 \subsection{Experiment 1: Convolutional Neural Network}
 Such artificial neural networks require the tuning of a multitude of hyperparameters.
@@ -345,11 +374,16 @@ is dependent on the number of support vectors, there is a dilemma of choosing a 
 of $\textit{C}$ will favour models that use less memory and faster to predict at risk of
 the model underfitting the data.
 
-\subsection{Procedure}
-
 \section{Experimental Evaluation}
 
 \section{Improvements}
+
+\begin{description}
+\item [Alternative cost modeling] Expected improvement per second may over penalise expensive evaluations that can nonetheless give good accuracy.
+An alternative to account for the cost is to balance the explore-exploit by considering the remaining time budget which is inspired by simulated annealing.
+As the remaining time decreases, we can decrease the acquisition's preference for exploration or use a acquisition function that exploits more.
+This is applicable for  acquisition functions with an explore-exploit parameter such as Expected Improvement with Explore-exploit cycle.
+\end{description}
 
 \section{Roles and Contributions}
 \begin{description}
