@@ -198,6 +198,20 @@ the cost-sensitive model can select the next point based on expected
 improvement per second. We therefore consider the expected improvement per unit cost
 to select points that account for good performance and cheap evaluation cost.
 
+\subsection{Covariance Function}
+The Gaussian process is characterized by its covariance function after normalizing the 
+data to attain a mean of 0. Since the standard squared exponential kernel is too
+smooth for most optimisation problems \cite{snoek2012practical}, we similarly
+use the Matern 5/2 kernel with Automatic Relevance Determination (ARD).
+\begin{align*}
+k (\textbf{x},\textbf{x}') = \sigma^2(1+\sqrt5r+\frac{5}{3}r^2)\exp(-\sqrt5r)
+\end{align*}
+\noindent where $r^2 = (\textbf{x}-\textbf{x}')^T\boldsymbol{\Lambda}(\textbf{x}-\textbf{x}')$
+and $\boldsymbol{\Lambda} = \text{diag}(\theta_i^2) \in \mathbb{R}^d$.
+This stationary kernel is commonly used in the areas of machine learning and 
+multivariate statistical analysis on metric spaces. $5/2$ is chosen for its ability to 
+produce smooth and yet sensitive curves.
+
 \subsection{Acquisition Functions}
 One of the key challenges in Bayesian optimisation is balancing the tradeoff
 between exploration and exploitation. This issue surfaces in the acquisition function,
@@ -238,7 +252,7 @@ From our research, we investigated and experimented with 3 modifications to exis
 acquisition functions.
 
 \begin{description}
-	\item[Probability of Improvement] This criterion is given by the following
+	\item[Probability of Improvement (PI)] This criterion is given by the following
 	equation:
 	$$\text{PI}(\textbf{x}) = \Phi\left( 
 	\frac{\mu(\textbf{x})-T-\xi}{\sigma(\textbf{x})}\right)$$
@@ -270,16 +284,14 @@ acquisition functions.
 	Bayesian optimisation.
 \end{description}
 
-
-\subsection{Covariance Functions}
-The Gaussian process is mainly characterized by its covariance function after normalizing the data to attain a mean of 0. The covariance function produces a covariance matrix which is utilised by the Gaussian process model for inference.
-In our paper, we use the Matern 5/2 kernel with Automatic Relevance Determination (ARD).
-
-\begin{align*}
-	k (\textbf{x},\textbf{x}') = \sigma^2(1+\sqrt5r+\frac{5}{3}r^2)\exp(-\sqrt5r)
-\end{align*}
-
-The Matern 5/2 kernel is commonly used in the areas of machine learning and multivariate statistical analysis on metric spaces. Due to its stationary and isotropic nature, it is able to produce similar predictive output for two inputs that are $d$ units away from each other. $5/2$ is chosen for its ability to produce smooth and yet sensitive curves.
+\subsection{Parallelised Bayesian Optimisation}
+Instead of taking a sequential approach, parallelised Bayesian optimisation can
+lead to time savings, even if the number of evaluations remains the same
+\cite{shahriari2016taking}. Since acquisition functions can be said to fall along
+some explore-exploit spectrum, we aggregate acquisition functions into one and
+attempt to search both locally and globally within the parameter space. The parallel
+nature of this process enables us to do so without incurring any significant
+additional time cost.
 
 \section{Experimental Setup}
 We validate the performance of the acquisition functions and cost-models using the python library. GPyOpt.
@@ -377,6 +389,14 @@ the model underfitting the data.
 \section{Experimental Evaluation}
 
 \section{Improvements}
+Specification of the Gaussian process prior and better optimisation of its 
+hyperparameters are important aspects that we did not have time to investigate.
+In hyperparameter tuning, the search space is most likely non-uniform and 
+non-stationary across the input space. One way is to use non-stationary
+kernels or to convert the Matern kernel into a non-stationary kernel.
+\cite{shahriari2016taking} Applying a parametric warping
+function followed by the Matern kernel could potentially improve results by
+accounting for this non-stationarity.
 
 \begin{description}
 \item [Alternative cost modeling] Expected improvement per second may over penalise expensive evaluations that can nonetheless give good accuracy.
