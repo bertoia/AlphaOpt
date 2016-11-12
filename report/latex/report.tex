@@ -402,6 +402,7 @@ the model underfitting the data.
 	\includegraphics[width=\linewidth]{EIX_CNN_X_init2_STD_ITER60min_v2.png}
 	\caption{CNN with EI on 60 minutes budget}
 \end{figure}
+\vfill\eject
 \begin{figure}[!h]
 	\includegraphics[width=\linewidth]{RAND_CNN_X_init2_STD_ITER60min_v2.png}
 	\caption{CNN with Random Search on 60 minutes budget}
@@ -414,9 +415,9 @@ the model underfitting the data.
 		\hline
 		\multirow{3}{*}{Std. Cost} & EI &  0.6793 & 19 & 23\\
 		& EI-EEC & 0.6663 & 16 & 25\\
-		& Random & 0.7120 & 9 & 18\\
+		& Random & \textbf{0.7120} & 9 & 18\\
 		\hline
-		\multirow{4}{*}{No Cost} & EI & 0.7465 & 37 & 40\\
+		\multirow{4}{*}{No Cost} & EI & \textbf{0.7465} & 37 & 40\\
 		& PI & 0.7420 & 29 & 40\\
 		& Random & 0.7130 & 22 & 40\\
 		\hline
@@ -424,8 +425,7 @@ the model underfitting the data.
 \end{center}
 	\caption{CNN validation results}
 \end{figure}
-
-The CNN standard Cost evaluations are done over a budget of one hour per run and no cost evaluations are capped at a maximum of 40 iterations
+The CNN standard Cost evaluations were done over a budget of one hour per run and no cost evaluations were capped at a maximum of 40 iterations
 
 While the BO approaches were able to run more iterations, the results were dissapointing compared to random search.
 We think that this was due to the time model over penalizing expensive hyperparameters.
@@ -437,6 +437,7 @@ The performance of the BO approaches are noticably better than random search on 
 	\includegraphics[width=\linewidth]{EIX_SVM_X_init2_NC_ITER40.png}
 	\caption{SVM with Probability of Improvement acquisition on 40 iterations}
 \end{figure}
+\vfill\eject
 \begin{figure}[h]
 	\includegraphics[width=\linewidth]{RAND_SVM_X_init2_NC_ITER40.png}
 	\caption{SVM with Random search on 40 iterations}
@@ -447,25 +448,25 @@ The performance of the BO approaches are noticably better than random search on 
 		\hline
 		Cost Model & Acquisition & Best & Best Iter. & Max Iter.\\
 		\hline
-		\multirow{3}{*}{Std. Cost} & EI &  0.8900 & 51 & 73\\
+		\multirow{3}{*}{Std. Cost} & EI &  \textbf{0.8900} & 51 & 73\\
 		& EI-EEC & 0.8850 & 56 & 69\\
 		& Random & 0.8864 & 6 & 74\\
 		\hline
 		\multirow{5}{*}{No Cost} & EI & 0.8842 & 25 & 40\\
 		& EI-EEC & 0.8850 & 40 & 40\\
 		& PI & 0.8821 & 29 & 40\\
-		& MES & 0.8857 & 28 & 40\\
+		& MES & \textbf{0.8857} & 28 & 40\\
 		& Random & 0.8821 & 16 & 40\\
 		\hline
 	\end{tabular}
 \end{center}
 	\caption{SVM validation results}
 \end{figure}
-The SVM standard cost evaluations were ran with a 10 minutes budget and no cost evaluations are capped at a maximum of 40 iterations.
+The SVM standard cost evaluations were ran with a 10 minutes budget and no cost evaluations were capped at a maximum of 40 iterations.
 
 An interesting observation is that random search managed to run more iterations than it's acquisition based counterparts.
 We believe this is because the time needed to train a SVM does not scale with $\gamma$ or $\textit{C}$.
-In addition, a BO iteration requires much more calculation to determine the next set of hyperparameter that a random search iteration.
+In addition, a BO iteration requires much more calculations to determine the next set of hyperparameter than a random search iteration.
 
 We also observed that BO and random search have similar performance.
 This was likely due to the problem being too simple which makes it easy to hit a good set of hyperparameters by chance.
@@ -494,8 +495,8 @@ This is applicable for acquisition functions with an explore-exploit parameter s
 \item [Karen Ang Mei Yi] Motivating application, Research on acquisition functions
 and parallelised Bayesian optimisation, Coding of acquisition functions for experiments and Report writing
 \item [Quek Chang Rong Sebastian] Crafting of the Convolutional Neural Network and 
-selection of the tunable hyperparameters, and Report writing
-\item [Vincent Seng Boon Chin]
+selection of its tunable hyperparameters, and report writing
+\item [Vincent Seng Boon Chin] Experimental evaluation design, code and report writing
 \item [Xu Ruofan] Research on cost-sensitive modelling and Report writing
 \end{description}
 
