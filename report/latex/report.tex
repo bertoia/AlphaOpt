@@ -8,6 +8,8 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{multirow}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
 \frenchspacing
 \setlength{\pdfpagewidth}{8.5in}
 \setlength{\pdfpageheight}{11in}
@@ -303,6 +305,7 @@ Here are the various variations that we considered for the experiments:
 	\item [$\bullet$ Expected Improvement]
 	\item [$\bullet$ Probability of Improvement]
 	\item [$\bullet$ Expected Improvement with Explore-exploit cycle]
+	\item [$\bullet$ Maximum Entropy Sampling]
 	\end{description}
 \item[Cost models] The various ways we can account for evalution time.
 	\begin{description}
@@ -386,8 +389,48 @@ is dependent on the number of support vectors, there is a dilemma of choosing a 
 of $\textit{C}$ will favour models that use less memory and faster to predict at risk of
 the model underfitting the data.
 
-\section{Experimental Evaluation}
+\section{Experimental Results}
+\subsection {Convolutional Neural Network}
+\includegraphics[width=\linewidth]{PIT_SVM_X_init2_STD_ITER40.png}
+The following table gives validation results:
+\begin{center}
+	\begin{tabular}{llll}
+		\hline
+		Cost Model & Acquisition & Best & Iteration \\
+		\hline
+		\multirow{4}{*}{Standard Cost} & Numeric &  0.7664 & \textbf{0.2752}\\
+		& OneHotEnc & 0.7667 & 0.2691 \\
+		& Word2Vec Genres  & \textbf{0.7634} & \textbf{0.2752} \\
+		& Probabilistic & 0.7640 & 0.2724 \\
+		\hline
+		\multirow{4}{*}{No Cost} & Numeric & \textbf{0.7639} & \textbf{0.2742}\\
+		& OneHotEnc & 0.7704 & 0.2665 \\
+		& Word2Vec Genres & 0.7665 & 0.2733 \\
+		& Probabilistic & 0.7670 & 0.2706 \\
+		\hline
+	\end{tabular}
+\end{center}
 
+\subsection {Support Vector Machine}
+\includegraphics[width=\linewidth]{PIT_SVM_X_init2_STD_ITER40.png}
+Here are the validation results:
+\begin{center}
+	\begin{tabular}{llll}
+		\hline
+		Cost Model & Acquisition & Best & Iteration \\
+		\hline
+		\multirow{4}{*}{Standard Cost} & Numeric &  0.7664 & \textbf{0.2752}\\
+		& OneHotEnc & 0.7667 & 0.2691 \\
+		& Word2Vec Genres  & \textbf{0.7634} & \textbf{0.2752} \\
+		& Probabilistic & 0.7640 & 0.2724 \\
+		\hline
+		\multirow{4}{*}{No Cost} & Numeric & \textbf{0.7639} & \textbf{0.2742}\\
+		& OneHotEnc & 0.7704 & 0.2665 \\
+		& Word2Vec Genres & 0.7665 & 0.2733 \\
+		& Probabilistic & 0.7670 & 0.2706 \\
+		\hline
+	\end{tabular}
+\end{center}
 \section{Improvements}
 \begin{description}
 \item [GP hyperparameters and Prior] Specification of the Gaussian process prior and better optimisation of its 
