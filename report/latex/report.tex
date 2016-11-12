@@ -419,7 +419,7 @@ the model underfitting the data.
 \end{center}
 	\caption{CNN validation results}
 \end{figure}
-The CNN standard Cost evaluations were done over a budget of one hour per run and no cost evaluations were capped at a maximum of 40 iterations
+The CNN standard Cost evaluations were ran with a one hour budget while the no cost evaluations were capped at a maximum of 40 iterations
 
 While the BO approaches were able to run more iterations, the results were dissapointing compared to random search.
 We think that this was due to the time model over penalizing expensive hyperparameters.
@@ -456,7 +456,7 @@ The performance of the BO approaches are noticably better than random search on 
 \end{center}
 	\caption{SVM validation results}
 \end{figure}
-The SVM standard cost evaluations were ran with a 10 minutes budget and no cost evaluations were capped at a maximum of 40 iterations.
+The SVM standard cost evaluations were ran with a 10 minutes budget while the no cost evaluations were capped at a maximum of 40 iterations.
 
 An interesting observation is that random search managed to run more iterations than it's acquisition based counterparts.
 We believe this is because the time needed to train a SVM does not scale with $\gamma$ or $\textit{C}$.
