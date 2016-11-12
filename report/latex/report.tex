@@ -302,10 +302,10 @@ Here are the various variations that we considered for the experiments:
 \begin{description}
 \item[Acquisition functions] The criterion that selects the next set of hyperparameter to evaluate on.
 	\begin{description}
-	\item [$\bullet$ Expected Improvement]
-	\item [$\bullet$ Probability of Improvement]
-	\item [$\bullet$ Expected Improvement with Explore-exploit cycle]
-	\item [$\bullet$ Maximum Entropy Sampling]
+	\item [$\bullet$ EI] Expected Improvement
+	\item [$\bullet$ PI] Probability of Improvement
+	\item [$\bullet$ EI-EEC] Expected Improvement with Explore-Exploit cycle
+	\item [$\bullet$ MES] Maximum Entropy Sampling
 	\end{description}
 \item[Cost models] The various ways we can account for evalution time.
 	\begin{description}
@@ -391,46 +391,71 @@ the model underfitting the data.
 
 \section{Experimental Results}
 \subsection {Convolutional Neural Network}
-\includegraphics[width=\linewidth]{PIT_SVM_X_init2_STD_ITER40.png}
+\begin{figure}[h]
+	\includegraphics[width=\linewidth]{PIT_SVM_X_init2_STD_ITER40.png}
+	\caption{CNN with Ransom search on 40 iterations}
+\end{figure}
 The following table gives validation results:
 \begin{center}
-	\begin{tabular}{llll}
+	\begin{tabular}{lllll}
 		\hline
-		Cost Model & Acquisition & Best & Iteration \\
+		Cost Model & Acquisition & Best Acc & Best Iter. & Max Iter.\\
 		\hline
-		\multirow{4}{*}{Standard Cost} & Numeric &  0.7664 & \textbf{0.2752}\\
-		& OneHotEnc & 0.7667 & 0.2691 \\
-		& Word2Vec Genres  & \textbf{0.7634} & \textbf{0.2752} \\
-		& Probabilistic & 0.7640 & 0.2724 \\
+		\multirow{3}{*}{Std. Cost} & EI &  0.7664 & \textbf{0.2752} &\\
+		& EI-EEC & \textbf{0.7634} & \textbf{0.2752} &\\
+		& Random & 0.7640 & 0.2724 &\\
 		\hline
-		\multirow{4}{*}{No Cost} & Numeric & \textbf{0.7639} & \textbf{0.2742}\\
-		& OneHotEnc & 0.7704 & 0.2665 \\
-		& Word2Vec Genres & 0.7665 & 0.2733 \\
-		& Probabilistic & 0.7670 & 0.2706 \\
+		\multirow{5}{*}{No Cost} & EI &  0.7664 & \textbf{0.2752} & \\
+		& EI-EEC & \textbf{0.7634} & \textbf{0.2752} & \\
+		& PI & 0.7667 & 0.2691 & \\
+		& MES & 0.7667 & 0.2691 & \\
+		& Random & 0.7640 & 0.2724 & \\
 		\hline
 	\end{tabular}
 \end{center}
 
+Standard Cost evaluations are done over a budget of one hour per run. 
+
 \subsection {Support Vector Machine}
-\includegraphics[width=\linewidth]{PIT_SVM_X_init2_STD_ITER40.png}
+
+\begin{figure}[h]
+	\includegraphics[width=\linewidth]{RAND_SVM_X_init2_STD_ITER40.png}
+	\caption{SVM with Ransom search on 40 iterations}
+\end{figure}
+\begin{figure}[h]
+	\includegraphics[width=\linewidth]{PIT_SVM_X_init2_STD_ITER40.png}
+	\caption{SVM with Probability of Improvement acquisition on 40 iterations}
+\end{figure}
+
 Here are the validation results:
+
 \begin{center}
-	\begin{tabular}{llll}
+	\begin{tabular}{lllll}
 		\hline
-		Cost Model & Acquisition & Best & Iteration \\
+		Cost Model & Acquisition & Best & Best Iter. & Max Iter.\\
 		\hline
-		\multirow{4}{*}{Standard Cost} & Numeric &  0.7664 & \textbf{0.2752}\\
-		& OneHotEnc & 0.7667 & 0.2691 \\
-		& Word2Vec Genres  & \textbf{0.7634} & \textbf{0.2752} \\
-		& Probabilistic & 0.7640 & 0.2724 \\
+		\multirow{3}{*}{Std. Cost} & EI &  0.8900 & 51 & 73\\
+		& EI-EEC & 0.8850 & 56 & 69\\
+		& Random & 0.8864 & 6 & 74\\
 		\hline
-		\multirow{4}{*}{No Cost} & Numeric & \textbf{0.7639} & \textbf{0.2742}\\
-		& OneHotEnc & 0.7704 & 0.2665 \\
-		& Word2Vec Genres & 0.7665 & 0.2733 \\
-		& Probabilistic & 0.7670 & 0.2706 \\
+		\multirow{5}{*}{No Cost} & EI & 0.8842 & 25 & 40\\
+		& EI-EEC & 0.8850 & 40 & 40\\
+		& PI & 0.8821 & 29 & 40\\
+		& MES & 0.8857 & 28 & 40\\
+		& Random & 0.8821 & 16 & 40\\
 		\hline
 	\end{tabular}
 \end{center}
+Standard cost evaluations are ran with a 10 minutes budget and no cost evaluations are capped at a maximum of 40 iterations.
+
+An interesting observation is that random search managed to run more iterations than it's acquisition based counterparts.
+We believe this is because the time needed to train a SVM does not scale with $\gamma$ or $\textit{C}$.
+In addition, a BO iteration requires much more calculation to determine the next set of hyperparameter that a random search iteration.
+
+We also observed that BO and random search have similar performance.
+This was likely due to the problem being too simple which makes it easy to hit a good set of hyperparameters by chance.
+Still, we can see that BO was able to gain improvements much deeper into the iterations as compared to random search.
+
 \section{Improvements}
 \begin{description}
 \item [GP hyperparameters and Prior] Specification of the Gaussian process prior and better optimisation of its 
