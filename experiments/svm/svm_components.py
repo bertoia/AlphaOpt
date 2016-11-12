@@ -15,7 +15,7 @@ X, y = mnist.data, mnist.target
 # Randomly split into 1% train (700) while keeping class balance.
 # Feature vector length 784
 
-sss = StratifiedShuffleSplit(n_splits=1, test_size=0.99, random_state=0)
+sss = StratifiedShuffleSplit(n_splits=1, test_size=0.98, random_state=0)
 for train_index, test_index in sss.split(X, y):
     X_train = X[train_index]
     y_train = y[train_index]
@@ -54,8 +54,8 @@ def fit_svc_val(x):
     print(fs)
     return sum(fs)
 
-space = GPyOpt.Design_space(space=[{'name': 'C', 'type': 'continuous', 'domain':(-7.,11.)},
-                                   {'name': 'gamma', 'type': 'continuous', 'domain': (-12.,3.)}])
+space = GPyOpt.Design_space(space=[{'name': 'C', 'type': 'continuous', 'domain':(-7., 11.)},
+                                   {'name': 'gamma', 'type': 'continuous', 'domain': (-12., 3.)}])
 
 
 objective = GPyOpt.core.task.SingleObjective(fit_svc_val)

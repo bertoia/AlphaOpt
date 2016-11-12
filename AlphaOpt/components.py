@@ -153,7 +153,7 @@ class PITarget(AcquisitionBase):
     def __init__(self, model, space, optimizer=None, cost_withGradients=None, jitter=0.2, target=None):
         super(PITarget, self).__init__(model, space, optimizer, cost_withGradients=cost_withGradients)
         self.jitter = jitter
-        self.target = 1 if target is None else target
+        self.target = 0 if target is None else target
 
     def _compute_acq(self, x):
         m, s = self.model.predict(x)
@@ -167,7 +167,7 @@ class PITarget(AcquisitionBase):
         fmin = self.target if self.target is not None else self.model.get_fmin()
         m, s, dmdx, dsdx = self.model.predict_withGradients(x)
         phi, Phi, u = get_quantiles(self.jitter, fmin, m, s)    
-        f_acqu =  Phi        
+        f_acqu = Phi
         df_acqu = -(phi/s)* (dmdx + dsdx * u)
 
         self.jitter *= .5
@@ -204,6 +204,7 @@ class MultiAcquisitions(EvaluatorBase):
         for i in range(1, len(self.acquisitions)):
             X_batch = np.vstack((X_batch, self.acquisitions[i].optimize()))
         return X_batch
+
 
 # My BO
 class MyModularBayesianOptimization(ModularBayesianOptimization):

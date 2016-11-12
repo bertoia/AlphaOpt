@@ -13,7 +13,7 @@ def run_standard_bo(space, objective, acquisition, X_init,
                     file_prefix,
                     max_iter=None, max_time=None,
                     model_kernel=GPy.kern.Matern52,
-                    cost_kernel=GPy.kern.Matern52,
+                    cost_kernel=GPy.kern.RBF,
                     cost=True):
     """
     Covers standard BO with or without cost
