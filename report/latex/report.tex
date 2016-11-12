@@ -348,12 +348,18 @@ The following are the six hyperparameters that we are tuning.
 
 \begin{enumerate}
 
-    \item Optimizer learning rate
-    \item Dropout rate (prevent overfitting)
-    \item Number of epochs
-    \item Number of features (for the convolution layer)
-    \item Size of features (dimensions of each feature)
-    \item Size of pooling layer (dimensions of each filter in the pooling layer)
+    \item Dropout rate (prevent overfitting)\\
+    $\{ x \in \mathbb{R} \mid 0 < x < 0.5\}$
+    \item Optimizer learning rate\\
+    $\{ x \in \mathbb{R} \mid 10^{-4} \leq x \leq 10^{-2}\}$
+    \item Number of epochs\\
+    $\{ 10, 11, 12, \ldots, 40\}$
+    \item Number of features (for the convolution layer)\\
+    $\{ 10, 11, 12, \ldots, 100\}$
+    \item Size of features (dimensions of each feature)\\
+    $\{ 2, 3, 4, 5\}$
+    \item Size of pooling layer (dimensions of each filter in the pooling layer)\\
+    $\{ 1, 2, 3, 4, 5\}$
 
 \end{enumerate}
 
@@ -487,7 +493,8 @@ This is applicable for acquisition functions with an explore-exploit parameter s
 \item [Gay Ming Jian Davis]
 \item [Karen Ang Mei Yi] Motivating application, Research on acquisition functions
 and parallelised Bayesian optimisation, Coding of acquisition functions for experiments and Report writing
-\item [Quek Chang Rong Sebastian]
+\item [Quek Chang Rong Sebastian] Crafting of the Convolutional Neural Network and 
+selection of the tunable hyperparameters, and Report writing
 \item [Vincent Seng Boon Chin]
 \item [Xu Ruofan] Research on cost-sensitive modelling and Report writing
 \end{description}
