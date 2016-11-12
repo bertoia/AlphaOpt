@@ -296,8 +296,8 @@ nature of this process enables us to do so without incurring any significant
 additional time cost.
 
 \section{Experimental Setup}
-We validate the performance of the acquisition functions and cost-models using the python library. GPyOpt.
-Here are the various variations that we considered for the experiments:
+We validate the performance of the acquisition functions and cost-models using the python library GPyOpt.
+Here is an overview of the components of our experimental setup:
 
 \begin{description}
 \item[Acquisition functions] The criterion that selects the next set of hyperparameter to evaluate on.
@@ -458,7 +458,7 @@ Still, we can see that BO was able to gain improvements much deeper into the ite
 
 \section{Improvements}
 \begin{description}
-\item [GP hyperparameters and Prior] Specification of the Gaussian process prior and better optimisation of its 
+\item [GP hyperparameters and prior] Specification of the Gaussian process prior and better optimisation of its 
 hyperparameters are important aspects that we did not have time to investigate.
 \item [Using non-stationary kernel] In hyperparameter tuning, the search space is most likely non-uniform and 
 non-stationary across the input space. One way is to use non-stationary
@@ -467,9 +467,9 @@ kernels or to convert the Matern kernel into a non-stationary kernel.
 function followed by the Matern kernel could potentially improve results by
 accounting for this non-stationarity.
 \item [Alternative cost modeling] Expected improvement per second may over penalise expensive evaluations that can nonetheless give good accuracy.
-An alternative to account for the cost is to balance the explore-exploit by considering the remaining time budget which is inspired by simulated annealing.
+An alternative to account for the cost is to balance the explore-exploit behavior by considering the remaining time budget which is inspired by simulated annealing.
 As the remaining time decreases, we can decrease the acquisition's preference for exploration or use a acquisition function that exploits more.
-This is applicable for  acquisition functions with an explore-exploit parameter such as Expected Improvement with Explore-exploit cycle.
+This is applicable for acquisition functions with an explore-exploit parameter such as Expected Improvement with Explore-Exploit cycle.
 \end{description}
 
 \section{Roles and Contributions}
